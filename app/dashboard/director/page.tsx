@@ -124,7 +124,7 @@ export default function DirectorDashboard() {
 
   const openForm = (type: string, action: string, item?: any) => {
     if (type === 'course') setCourseForm(item || { id: '', title: '', duration: '', description: '', price: 0, availableSeats: 0 });
-    else if (type === 'self') setForm({ id: user?._id || '', email: user?.email || '', username: user?.username || '', contact: user?.contact || '', nic: user?.nic || '', address: user?.address || '', password: '' });
+    else if (type === 'self') setForm({ id: user?._id || '', email: user?.email || '', username: user?.username || '', contact: user?.contact || '', nic: user?.nic || '', address: user?.address || '', password: '', work: '' });
     else setForm(item ? { ...item, id: item._id, password: '' } : { id: '', email: '', username: '', contact: '', nic: '', work: '', address: '', password: '' });
     setOpenDialog({ type, action });
   };
