@@ -187,7 +187,6 @@ export default function Home() {
             <div className="text-center space-y-8">
               {/* Government Badge */}
               <div className={`inline-flex items-center space-x-2 px-4 py-2 rounded-full backdrop-blur-xl bg-white/30 border border-white/20 transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                <div className="w-6 h-4 bg-gradient-to-r from-orange-500 via-white to-green-500 rounded-sm"></div>
                 <span className="text-sm font-medium">Government of Sri Lanka</span>
                 <Badge className="bg-blue-600 text-white">Official</Badge>
               </div>
@@ -497,7 +496,6 @@ export default function Home() {
                 <Card className="backdrop-blur-xl bg-white/40 border border-white/30 p-8">
                   <div className="space-y-6">
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-8 bg-gradient-to-r from-orange-500 via-white to-green-500 rounded"></div>
                       <div>
                         <h3 className="font-bold text-lg">Ministry of Education</h3>
                         <p className="text-gray-600">Democratic Socialist Republic of Sri Lanka</p>
