@@ -1,27 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
-import {Course} from '@/models/Course';
+import { Course } from '@/models/Course';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-
     await dbConnect();
 
+    const { id } = await context.params; // ✅ await the params
     const body = await request.json();
     const { title, duration, description, price, availableSeats, instructor, category } = body;
 
-    const course = await Course.findById(params.id);
+    const course = await Course.findById(id);
     if (!course) {
       return NextResponse.json({ message: 'Course not found' }, { status: 404 });
     }
 
-    // Check if title is taken by another course
     const existingCourse = await Course.findOne({
       title,
-      _id: { $ne: params.id }
+      _id: { $ne: id }
     });
 
     if (existingCourse) {
@@ -29,7 +28,7 @@ export async function PUT(
     }
 
     const updatedCourse = await Course.findByIdAndUpdate(
-      params.id,
+      id,
       {
         title,
         duration,
@@ -52,25 +51,26 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-
     await dbConnect();
 
-    const course = await Course.findById(params.id);
+    const { id } = await context.params; // ✅ await params
+
+    const course = await Course.findById(id);
     if (!course) {
       return NextResponse.json({ message: 'Course not found' }, { status: 404 });
     }
 
-    // Check if course has enrolled students
     if (course.enrolledStudents > 0) {
-      return NextResponse.json({ 
-        message: 'Cannot delete course with enrolled students' 
-      }, { status: 400 });
+      return NextResponse.json(
+        { message: 'Cannot delete course with enrolled students' },
+        { status: 400 }
+      );
     }
 
-    await Course.findByIdAndDelete(params.id);
+    await Course.findByIdAndDelete(id);
     return NextResponse.json({ message: 'Course deleted successfully' });
   } catch (error) {
     console.error('Error deleting course:', error);

@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import Student from '@/models/Student';
-import {Course} from '@/models/Course';
+import { Course } from '@/models/Course';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-
     await dbConnect();
 
+    const { id } = await context.params; // ✅ await params
     const body = await request.json();
     const {
       firstName,
@@ -29,15 +29,15 @@ export async function PUT(
       status
     } = body;
 
-    const student = await Student.findById(params.id);
+    const student = await Student.findById(id);
     if (!student) {
       return NextResponse.json({ message: 'Student not found' }, { status: 404 });
     }
 
     // Check if email is taken by another student
-    const existingStudent = await Student.findOne({ 
-      email, 
-      _id: { $ne: params.id } 
+    const existingStudent = await Student.findOne({
+      email,
+      _id: { $ne: id }
     });
     if (existingStudent) {
       return NextResponse.json({ message: 'Email already taken by another student' }, { status: 400 });
@@ -48,15 +48,14 @@ export async function PUT(
     const age = Math.floor((Date.now() - birthDate.getTime()) / (365.25 * 24 * 60 * 60 * 1000));
 
     // Update course enrollments
-    const oldCourseIds = student.enrolledCourses.map((ec: { courseId: { toString: () => any; }; }) => ec.courseId.toString());
+    const oldCourseIds = student.enrolledCourses.map((ec: { courseId: { toString: () => any } }) =>
+      ec.courseId.toString()
+    );
     const newCourseIds = courseIds || [];
 
-    // Courses to remove
     const coursesToRemove = oldCourseIds.filter((id: any) => !newCourseIds.includes(id));
-    // Courses to add
     const coursesToAdd = newCourseIds.filter((id: any) => !oldCourseIds.includes(id));
 
-    // Update course counts
     for (const courseId of coursesToRemove) {
       await Course.findByIdAndUpdate(courseId, {
         $inc: { enrolledStudents: -1, availableSeats: 1 }
@@ -69,22 +68,23 @@ export async function PUT(
       });
     }
 
-    // Prepare new enrolled courses
     const enrolledCourses = newCourseIds.map((courseId: string) => {
       const existingEnrollment = student.enrolledCourses.find(
-        (        ec: { courseId: { toString: () => string; }; }) => ec.courseId.toString() === courseId
+        (ec: { courseId: { toString: () => string } }) => ec.courseId.toString() === courseId
       );
-      
-      return existingEnrollment || {
-        courseId,
-        enrollmentDate: new Date(),
-        status: 'active',
-        progress: 0
-      };
+
+      return (
+        existingEnrollment || {
+          courseId,
+          enrollmentDate: new Date(),
+          status: 'active',
+          progress: 0
+        }
+      );
     });
 
     const updatedStudent = await Student.findByIdAndUpdate(
-      params.id,
+      id,
       {
         firstName,
         lastName,
@@ -118,12 +118,13 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
 
-    const student = await Student.findById(params.id);
+    const { id } = await context.params; // ✅ await params
+    const student = await Student.findById(id);
     if (!student) {
       return NextResponse.json({ message: 'Student not found' }, { status: 404 });
     }
@@ -135,10 +136,11 @@ export async function DELETE(
       });
     }
 
-    await Student.findByIdAndDelete(params.id);
+    await Student.findByIdAndDelete(id);
 
     return NextResponse.json({ message: 'Student deleted successfully' });
   } catch (error) {
     console.error('Error deleting student:', error);
     return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
-  }}
+  }
+}

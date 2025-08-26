@@ -1,6 +1,7 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -34,7 +35,9 @@ import {
   Zap,
   Heart,
   ChevronDown,
-  ExternalLink
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 
 interface StatItem {
@@ -58,19 +61,24 @@ interface ServiceItem {
   icon: React.ReactNode;
 }
 
+interface CourseItem {
+  id: number;
+  title: string;
+  description: string;
+  duration: string;
+  level: string;
+  students: string;
+  rating: number;
+  image: string;
+}
+
 export default function Home() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [currentCourseSlide, setCurrentCourseSlide] = useState(0);
 
-  useEffect(() => {
-    setIsVisible(true);
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 3);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const stats: StatItem[] = [
+  // Memoized data to prevent recreation on each render
+  const stats: StatItem[] = useMemo(() => [
     {
       label: "Registered Students",
       value: "25,847+",
@@ -95,9 +103,9 @@ export default function Home() {
       icon: <Award className="w-8 h-8" />,
       color: "from-orange-500 to-orange-600"
     }
-  ];
+  ], []);
 
-  const features: FeatureItem[] = [
+  const features: FeatureItem[] = useMemo(() => [
     {
       title: "Secure Access Control",
       description: "Multi-level authentication system ensuring data security and role-based access for administrators, directors, and users.",
@@ -134,9 +142,9 @@ export default function Home() {
       icon: <Target className="w-12 h-12" />,
       color: "from-indigo-500 to-blue-600"
     }
-  ];
+  ], []);
 
-  const services: ServiceItem[] = [
+  const services: ServiceItem[] = useMemo(() => [
     {
       title: "Student Registration & Management",
       description: "Comprehensive student lifecycle management from admission to graduation.",
@@ -155,37 +163,115 @@ export default function Home() {
       features: ["User Management", "System Settings", "Report Generation", "Audit Trails"],
       icon: <Settings className="w-8 h-8" />
     }
-  ];
+  ], []);
 
-  const heroSlides = [
+  const courses: CourseItem[] = useMemo(() => [
     {
-      title: "පළාත් පාලනය පිළිබඳ ශ්‍රී ලංකා ආයතනය",
-      subtitle: "Transforming Sri Lanka's Educational Landscape",
-      description: "Empowering students, educators, and institutions through innovative technology solutions."
+      id: 1,
+      title: "පරිගණක විද්‍යා මූලික කරුණු",
+      description: "පරිගණක විද්‍යාවේ මූලික සංකල්ප, ක්‍රමලේඛනය සහ සෝෆ්ට්වෙයර් සංවර්ධනය ඉගෙන ගන්න",
+      duration: "6 මාස",
+      level: "ආරම්භක",
+      students: "2,450+",
+      rating: 4.8,
+      image: "/course1j.jpg"
     },
     {
-      title: "පළාත් පාලනය පිළිබඳ ශ්‍රී ලංකා ආයතනය",
-      subtitle: "Ministry of Education - Sri Lanka",
-      description: "Official government platform for streamlined educational administration and management."
+      id: 2,
+      title: "ව්‍යාපාර කළමනාකරණය",
+      description: "ව්‍යාපාරික අධ්‍යයනයන්, කළමනාකරණ කුසලතා සහ ව්‍යවසායකත්වය පිළිබඳ සම්පූර්ණ පාඨමාලාව",
+      duration: "8 මාස",
+      level: "මධ්‍යම",
+      students: "1,840+",
+      rating: 4.7,
+      image: "/course2j.jpg"
     },
     {
-      title: "පළාත් පාලනය පිළිබඳ ශ්‍රී ලංකා ආයතනය",
-      subtitle: "Building Tomorrow's Leaders Today",
-      description: "Comprehensive digital infrastructure supporting quality education for all Sri Lankan students."
+      id: 3,
+      title: "ඉංග්‍රීසි භාෂා කුසලතා",
+      description: "ඉංග්‍රීසි කථන, ලේඛන, අසන සහ කියවීමේ කුසලතා වර්ධනය කරන විශේෂ පාඨමාලාව",
+      duration: "4 මාස",
+      level: "සියලු මට්ටම්",
+      students: "3,120+",
+      rating: 4.9,
+      image: "/course3j.jpg"
+    },
+    {
+      id: 4,
+      title: "ගණිත සහ විද්‍යාව",
+      description: "උසස් ගණිත, භෞතික විද්‍යාව, රසායන විද්‍යාව සහ ජීව විද්‍යාව පාඨමාලා",
+      duration: "10 මාස",
+      level: "උසස්",
+      students: "1,680+",
+      rating: 4.6,
+      image: "/course4j.jpg"
+    },
+    {
+      id: 5,
+      title: "කලා සහ සංස්කෘතිය",
+      description: "ශ්‍රී ලංකාවේ සාම්ප්‍රදායික කලා, සංස්කෘතික උරුමය සහ නවීන කලාකරණය",
+      duration: "5 මාස",
+      level: "ආරම්භක",
+      students: "920+",
+      rating: 4.5,
+      image: "/course5j.jpg"
     }
-  ];
+  ], []);
+
+  const heroSlides = useMemo(() => [
+    {
+      title: "පළාත් පාලනය පිළිබඳ ශ්‍රී ලංකා ආයතනය",
+      subtitle: "ශ්‍රී ලංකාවේ අධ්‍යාපනික භූමිකාව පරිවර්තනය කිරීම",
+      description: "නව්‍ය තාක්ෂණික විසඳුම් හරහා ශිෂ්‍යයන්, අධ්‍යාපකයන් සහ ආයතන සවිබල ගැන්වීම."
+    },
+    {
+      title: "පළාත් පාලනය පිළිබඳ ශ්‍රී ලංකා ආයතනය",
+      subtitle: "අධ්‍යාපන අමාත්‍යාංශය - ශ්‍රී ලංකාව",
+      description: "විධිමත් අධ්‍යාපන පරිපාලනය සහ කළමනාකරණය සඳහා නිල රජයේ වේදිකාව."
+    },
+    {
+      title: "පළාත් පාලනය පිළිබඳ ශ්‍රී ලංකා ආයතනය",
+      subtitle: "අද හෙටේ නායකයින් ගොඩනැගීම",
+      description: "සියලුම ශ්‍රී ලාංකික ශිෂ්‍යයන් සඳහා ගුණාත්මක අධ්‍යාපනයට සහාය වන විස්තීර්ණ ඩිජිටල් යටිතල පහසුකම්."
+    }
+  ], []);
+
+  // Optimized callbacks
+  const nextCourseSlide = useCallback(() => {
+    setCurrentCourseSlide((prev) => (prev + 1) % courses.length);
+  }, [courses.length]);
+
+  const prevCourseSlide = useCallback(() => {
+    setCurrentCourseSlide((prev) => (prev - 1 + courses.length) % courses.length);
+  }, [courses.length]);
+
+  // Optimized useEffect with proper cleanup
+  useEffect(() => {
+    setIsVisible(true);
+    
+    const heroInterval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+    }, 5000);
+
+    const courseInterval = setInterval(() => {
+      setCurrentCourseSlide((prev) => (prev + 1) % courses.length);
+    }, 4000);
+    
+    return () => {
+      clearInterval(heroInterval);
+      clearInterval(courseInterval);
+    };
+  }, [heroSlides.length, courses.length]);
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <Header />
       
-
       <main className="flex-grow relative z-10">
-        {/* Hero Section */}
+        {/* Hero Section - Sinhala */}
         <section className="relative overflow-hidden py-20 px-4">
           <div className="max-w-7xl mx-auto">
             <div className="text-center space-y-8">
-
               {/* Dynamic Hero Content */}
               <div className="space-y-6 min-h-[300px] flex flex-col justify-center">
                 <h1 className={`text-2xl md:text-5xl lg:text-6xl font-extrabold bg-primary bg-clip-text text-transparent transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
@@ -201,10 +287,10 @@ export default function Home() {
 
               {/* CTA Buttons */}
               <div className={`flex flex-col sm:flex-row gap-4 justify-center items-center transition-all duration-1000 delay-600 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
-                  <Button size="lg" className="bg-primary text-white px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
-                    <UserCheck className="w-5 h-5 mr-2" />
-                    Get Started Today
-                  </Button>
+                <Button size="lg" className="bg-primary text-white px-8 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300">
+                  <UserCheck className="w-5 h-5 mr-2" />
+                  අද පටන් ගන්න
+                </Button>
               </div>
 
               {/* Slide Indicators */}
@@ -243,6 +329,132 @@ export default function Home() {
                   </CardContent>
                 </Card>
               ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Courses Section - New Slider */}
+        <section className="py-20 px-4 bg-gradient-to-r from-indigo-900/10 to-purple-900/10">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4">
+                ජනප්‍රිය පාඨමාලා
+              </h2>
+              <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+                අපගේ සම්පූර්ණ පාඨමාලා පරාසයෙන් තෝරාගත් ප්‍රධාන අධ්‍යාපන වැඩසටහන්
+              </p>
+            </div>
+
+            <div className="relative">
+              <div className="overflow-hidden rounded-2xl">
+                <div 
+                  className="flex transition-transform duration-500 ease-in-out" 
+                  style={{ transform: `translateX(-${currentCourseSlide * 100}%)` }}
+                >
+                  {courses.map((course, index) => (
+                    <div key={course.id} className="w-full flex-shrink-0">
+                      <Card className="backdrop-blur-xl bg-white/40 border border-white/30 hover:bg-white/50 transition-all duration-300 mx-4">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 p-8">
+                          <div className="relative h-64 lg:h-80 rounded-xl overflow-hidden group">
+                            <Image
+                              src={course.image}
+                              alt={course.title}
+                              fill
+                              className="object-cover group-hover:scale-105 transition-transform duration-300"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                              priority={index === 0}
+                            />
+                            <div className="absolute top-4 left-4">
+                              <Badge className="bg-blue-600 text-white">
+                                {course.level}
+                              </Badge>
+                            </div>
+                            <div className="absolute top-4 right-4">
+                              <Badge className="bg-green-600 text-white">
+                                <Star className="w-3 h-3 mr-1" />
+                                {course.rating}
+                              </Badge>
+                            </div>
+                            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                              <Button size="sm" className="bg-white/90 text-gray-800 hover:bg-white">
+                                <Play className="w-4 h-4 mr-2" />
+                                පෙරදසුන
+                              </Button>
+                            </div>
+                          </div>
+                          
+                          <div className="flex flex-col justify-center space-y-6">
+                            <div>
+                              <h3 className="text-3xl font-bold text-gray-800 mb-4">{course.title}</h3>
+                              <p className="text-lg text-gray-600 leading-relaxed">{course.description}</p>
+                            </div>
+                            
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="flex items-center space-x-2">
+                                <Clock className="w-5 h-5 text-blue-500" />
+                                <span className="text-gray-700">{course.duration}</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Users className="w-5 h-5 text-green-500" />
+                                <span className="text-gray-700">{course.students}</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Award className="w-5 h-5 text-purple-500" />
+                                <span className="text-gray-700">{course.level}</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                <Star className="w-5 h-5 text-yellow-500" />
+                                <span className="text-gray-700">{course.rating} අගය</span>
+                              </div>
+                            </div>
+                            
+                            <div className="flex space-x-4">
+                              <Button className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white">
+                                <BookOpen className="w-4 h-4 mr-2" />
+                                ලියාපදිංචි වන්න
+                              </Button>
+                              <Button variant="outline" className="border-blue-500 text-blue-600 hover:bg-blue-50">
+                                <Download className="w-4 h-4 mr-2" />
+                                විස්තර
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Navigation Buttons */}
+              <button
+                onClick={prevCourseSlide}
+                className="absolute left-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/80 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 z-10"
+                aria-label="Previous course"
+              >
+                <ChevronLeft className="w-6 h-6 text-gray-600" />
+              </button>
+              <button
+                onClick={nextCourseSlide}
+                className="absolute right-4 top-1/2 transform -translate-y-1/2 w-12 h-12 bg-white/80 hover:bg-white rounded-full shadow-lg flex items-center justify-center transition-all duration-300 hover:scale-110 z-10"
+                aria-label="Next course"
+              >
+                <ChevronRight className="w-6 h-6 text-gray-600" />
+              </button>
+
+              {/* Course Indicators */}
+              <div className="flex justify-center space-x-2 mt-8">
+                {courses.map((_, index) => (
+                  <button
+                    key={index}
+                    className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                      index === currentCourseSlide ? 'bg-blue-600 w-8' : 'bg-gray-300'
+                    }`}
+                    onClick={() => setCurrentCourseSlide(index)}
+                    aria-label={`Go to course ${index + 1}`}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </section>
