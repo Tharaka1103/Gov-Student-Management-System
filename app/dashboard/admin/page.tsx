@@ -14,8 +14,8 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Edit, 
   Trash, 
@@ -26,7 +26,6 @@ import {
   UserCheck, 
   Crown, 
   Search,
-  TrendingUp,
   AlertCircle,
   CheckCircle,
   Eye,
@@ -34,22 +33,19 @@ import {
   Phone,
   MapPin,
   Calendar,
-  DollarSign,
-  Table2,
-  Clock,
   Shield,
-  Settings,
-  BarChart3,
+  GraduationCap,
+  User,
   Award,
-  Target,
-  Activity,
-  Bell,
-  Filter,
-  Download,
+  Settings,
   RefreshCw,
-  ChevronDown,
-  Star,
-  Zap
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  FileText,
+  BookMarked,
+  Clock,
+  DollarSign
 } from 'lucide-react';
 import DeleteConfirm from '@/components/DeleteConfirm';
 
@@ -80,6 +76,43 @@ interface Course {
   createdAt?: string;
 }
 
+interface Student {
+  _id: string;
+  studentId: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  address: string;
+  dateOfBirth: string;
+  nic: string;
+  guardianName?: string;
+  guardianPhone?: string;
+  enrolledCourses: Array<{
+    courseId: {
+      _id: string;
+      title: string;
+      duration: string;
+      price: number;
+    };
+    enrollmentDate: string;
+    status: 'active' | 'completed' | 'suspended' | 'dropped';
+    progress: number;
+    completionDate?: string;
+  }>;
+  academicInfo: {
+    previousEducation?: string;
+    previousInstitution?: string;
+  };
+  status: 'active' | 'inactive' | 'graduated' | 'suspended';
+  enrollmentDate: string;
+  notes?: string;
+  age: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 interface Contact {
   _id: string;
   name: string;
@@ -89,116 +122,116 @@ interface Contact {
   createdAt: string;
 }
 
-interface SearchState {
-  students: string;
-  directors: string;
-  admins: string;
-  courses: string;
-  contacts: string;
-}
-
-// Define valid search keys as a union type
-type SearchKey = keyof SearchState;
-
-interface AlertState {
-  show: boolean;
-  type: 'success' | 'error' | '';
-  message: string;
-}
-
-interface UserForm {
-  id: string;
-  email: string;
-  username: string;
-  contact: string;
-  nic: string;
-  work: string;
-  address: string;
-  password: string;
-  role: string;
-}
-
-interface CourseForm {
-  id: string;
-  title: string;
-  duration: string;
-  description: string;
-  price: number;
-  availableSeats: number;
-}
-
-interface DialogState {
-  type: string;
-  action: string;
-}
-
-interface StatCardProps {
-  title: string;
-  value: string | number;
-  icon: React.ComponentType<{ className?: string }>;
-  color: string;
-  description?: string;
-  trend?: number;
-}
-
-interface DataTableProps {
-  data: any[];
-  searchKey: string;
-  type: SearchKey; // Changed to use SearchKey union type
-  fields: string[];
-  onEdit: (item: any) => void;
-  onDelete: (id: string) => void;
-  customActions?: (item: any) => React.ReactNode;
-  searchState: SearchState; // Added searchState prop
-  onSearchChange: (type: SearchKey, value: string) => void; // Added search change handler
-}
-
-interface ContactDetailDialogProps {
-  contact: Contact | null;
-  open: boolean;
-  onClose: () => void;
-}
-
 export default function AdminDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
-  const [students, setStudents] = useState<User[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [directors, setDirectors] = useState<User[]>([]);
   const [admins, setAdmins] = useState<User[]>([]);
+  const [regularUsers, setRegularUsers] = useState<User[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [contacts, setContacts] = useState<Contact[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
-  const [alert, setAlert] = useState<AlertState>({ show: false, type: '', message: '' });
-  const [search, setSearch] = useState<SearchState>({ 
-    students: '', 
-    directors: '', 
-    admins: '', 
-    courses: '', 
-    contacts: '' 
+  const [alert, setAlert] = useState<{ show: boolean; type: 'success' | 'error' | ''; message: string }>({ 
+    show: false, 
+    type: '', 
+    message: '' 
   });
-  const [form, setForm] = useState<UserForm>({ 
-    id: '', 
-    email: '', 
-    username: '', 
-    contact: '', 
-    nic: '', 
-    work: '', 
-    address: '', 
-    password: '', 
-    role: '' 
-  });
-  const [courseForm, setCourseForm] = useState<CourseForm>({ 
-    id: '', 
-    title: '', 
-    duration: '', 
-    description: '', 
-    price: 0, 
-    availableSeats: 0 
-  });
-  const [openDialog, setOpenDialog] = useState<DialogState>({ type: '', action: '' });
-  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
   const [activeTab, setActiveTab] = useState<string>('overview');
+
+  // Search states
+  const [studentSearch, setStudentSearch] = useState('');
+  const [userSearch, setUserSearch] = useState('');
+  const [directorSearch, setDirectorSearch] = useState('');
+  const [adminSearch, setAdminSearch] = useState('');
+  const [courseSearch, setCourseSearch] = useState('');
+  const [contactSearch, setContactSearch] = useState('');
+
+  // Dialog states
+  const [studentDialog, setStudentDialog] = useState(false);
+  const [userDialog, setUserDialog] = useState(false);
+  const [directorDialog, setDirectorDialog] = useState(false);
+  const [adminDialog, setAdminDialog] = useState(false);
+  const [courseDialog, setCourseDialog] = useState(false);
+  const [contactDialog, setContactDialog] = useState(false);
+  const [studentDetailDialog, setStudentDetailDialog] = useState(false);
+  const [contactDetailDialog, setContactDetailDialog] = useState(false);
+
+  // Form states
+  const [editingStudent, setEditingStudent] = useState<Student | null>(null);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingDirector, setEditingDirector] = useState<User | null>(null);
+  const [editingAdmin, setEditingAdmin] = useState<User | null>(null);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [editingContact, setEditingContact] = useState<Contact | null>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+  const [selectedContact, setSelectedContact] = useState<Contact | null>(null);
+
+  // Form data states
+  const [studentForm, setStudentForm] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    dateOfBirth: '',
+    nic: '',
+    guardianName: '',
+    guardianPhone: '',
+    courseIds: [] as string[],
+    previousEducation: '',
+    previousInstitution: '',
+    notes: '',
+    status: 'active'
+  });
+
+  const [userForm, setUserForm] = useState({
+    email: '',
+    username: '',
+    contact: '',
+    nic: '',
+    work: '',
+    address: '',
+    password: ''
+  });
+
+  const [directorForm, setDirectorForm] = useState({
+    email: '',
+    username: '',
+    contact: '',
+    nic: '',
+    work: '',
+    address: '',
+    password: ''
+  });
+
+  const [adminForm, setAdminForm] = useState({
+    email: '',
+    username: '',
+    contact: '',
+    nic: '',
+    work: '',
+    address: '',
+    password: ''
+  });
+
+  const [courseForm, setCourseForm] = useState({
+    title: '',
+    duration: '',
+    description: '',
+    price: 0,
+    availableSeats: 0,
+    instructor: '',
+    category: ''
+  });
+
+  const [contactForm, setContactForm] = useState({
+    name: '',
+    email: '',
+    message: '',
+    read: false
+  });
 
   useEffect(() => {
     const initializeAdmin = async () => {
@@ -223,13 +256,12 @@ export default function AdminDashboard() {
     initializeAdmin();
   }, [router]);
 
-  const fetchData = async (): Promise<void> => {
+  const fetchData = async () => {
     try {
       setLoading(true);
-      const [stuRes, dirRes, admRes, couRes, conRes] = await Promise.all([
-        fetch('/api/users?role=user', { credentials: 'include' }),
-        fetch('/api/users?role=director', { credentials: 'include' }),
-        fetch('/api/users?role=admin', { credentials: 'include' }),
+      const [stuRes, userRes, couRes, conRes] = await Promise.all([
+        fetch('/api/students', { credentials: 'include' }),
+        fetch('/api/users', { credentials: 'include' }),
         fetch('/api/courses', { credentials: 'include' }),
         fetch('/api/contacts', { credentials: 'include' })
       ]);
@@ -238,18 +270,21 @@ export default function AdminDashboard() {
         const studentsData = await stuRes.json();
         setStudents(Array.isArray(studentsData) ? studentsData : []);
       }
-      if (dirRes.ok) {
-        const directorsData = await dirRes.json();
-        setDirectors(Array.isArray(directorsData) ? directorsData : []);
+      
+      if (userRes.ok) {
+        const usersData = await userRes.json();
+        if (Array.isArray(usersData)) {
+          setDirectors(usersData.filter(u => u.role === 'director'));
+          setAdmins(usersData.filter(u => u.role === 'admin'));
+          setRegularUsers(usersData.filter(u => u.role === 'user'));
+        }
       }
-      if (admRes.ok) {
-        const adminsData = await admRes.json();
-        setAdmins(Array.isArray(adminsData) ? adminsData : []);
-      }
+      
       if (couRes.ok) {
         const coursesData = await couRes.json();
         setCourses(Array.isArray(coursesData) ? coursesData : []);
       }
+      
       if (conRes.ok) {
         const contactsData = await conRes.json();
         setContacts(Array.isArray(contactsData) ? contactsData : []);
@@ -261,54 +296,87 @@ export default function AdminDashboard() {
     }
   };
 
-  const refreshData = async (): Promise<void> => {
+  const refreshData = async () => {
     setRefreshing(true);
     await fetchData();
     setRefreshing(false);
     showAlert('success', 'Data refreshed successfully');
   };
 
-  const showAlert = (type: 'success' | 'error', message: string): void => {
+  const showAlert = (type: 'success' | 'error', message: string) => {
     setAlert({ show: true, type, message });
     setTimeout(() => setAlert({ show: false, type: '', message: '' }), 5000);
   };
 
-  const handleSubmit = async (type: string): Promise<void> => {
+  const getInitials = (name: string) => {
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active': return 'bg-green-100 text-green-800';
+      case 'inactive': return 'bg-gray-100 text-gray-800';
+      case 'graduated': return 'bg-blue-100 text-blue-800';
+      case 'suspended': return 'bg-red-100 text-red-800';
+      case 'completed': return 'bg-purple-100 text-purple-800';
+      case 'dropped': return 'bg-orange-100 text-orange-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active': return <CheckCircle2 className="w-3 h-3" />;
+      case 'inactive': return <XCircle className="w-3 h-3" />;
+      case 'graduated': return <GraduationCap className="w-3 h-3" />;
+      case 'suspended': return <AlertTriangle className="w-3 h-3" />;
+      case 'completed': return <CheckCircle className="w-3 h-3" />;
+      case 'dropped': return <XCircle className="w-3 h-3" />;
+      default: return <User className="w-3 h-3" />;
+    }
+  };
+
+  // Student Management Functions
+  const handleStudentSubmit = async () => {
     try {
-      const endpoint = type === 'course' ? '/api/courses' : '/api/users';
-      const body = type === 'course' ? courseForm : form;
-      const method = body.id ? 'PUT' : 'POST';
-      const response = await fetch(endpoint, { 
-        method, 
-        body: JSON.stringify(body), 
-        headers: { 'Content-Type': 'application/json' }, 
-        credentials: 'include' 
-      });
+      const method = editingStudent ? 'PUT' : 'POST';
+      const url = editingStudent ? `/api/students/${editingStudent._id}` : '/api/students';
       
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(studentForm),
+        credentials: 'include'
+      });
+
       if (response.ok) {
-        showAlert('success', `${type} ${body.id ? 'updated' : 'created'} successfully`);
+        showAlert('success', `Student ${editingStudent ? 'updated' : 'created'} successfully`);
         await fetchData();
-        setOpenDialog({ type: '', action: '' });
-        resetForm();
+        setStudentDialog(false);
+        resetStudentForm();
       } else {
-        showAlert('error', 'Operation failed');
+        const errorData = await response.json();
+        showAlert('error', errorData.message || 'Operation failed');
       }
     } catch (error) {
       showAlert('error', 'Network error occurred');
     }
   };
 
-  const handleDelete = async (type: string, id: string): Promise<void> => {
+  const handleStudentDelete = async (id: string) => {
     try {
-      const endpoint = type === 'course' 
-        ? `/api/courses?id=${id}` 
-        : type === 'contact' 
-        ? `/api/contacts?id=${id}` 
-        : `/api/users?id=${id}`;
-      const response = await fetch(endpoint, { method: 'DELETE', credentials: 'include' });
-      
+      const response = await fetch(`/api/students/${id}`, { 
+        method: 'DELETE', 
+        credentials: 'include' 
+      });
+
       if (response.ok) {
-        showAlert('success', `${type} deleted successfully`);
+        showAlert('success', 'Student deleted successfully');
         await fetchData();
       } else {
         showAlert('error', 'Delete operation failed');
@@ -318,245 +386,474 @@ export default function AdminDashboard() {
     }
   };
 
-  const openForm = (type: string, action: string, item?: any): void => {
-    if (type === 'course') {
-      setCourseForm(item || { id: '', title: '', duration: '', description: '', price: 0, availableSeats: 0 });
-    } else {
-      setForm(item ? { ...item, id: item._id, role: type, password: '' } : { 
-        id: '', email: '', username: '', contact: '', nic: '', work: '', address: '', password: '', role: type 
+  const openStudentForm = (student?: Student) => {
+    if (student) {
+      setEditingStudent(student);
+      setStudentForm({
+        firstName: student.firstName,
+        lastName: student.lastName,
+        email: student.email,
+        phone: student.phone,
+        address: student.address,
+        dateOfBirth: student.dateOfBirth.split('T')[0],
+        nic: student.nic,
+        guardianName: student.guardianName || '',
+        guardianPhone: student.guardianPhone || '',
+        courseIds: student.enrolledCourses.map(ec => ec.courseId._id),
+        previousEducation: student.academicInfo.previousEducation || '',
+        previousInstitution: student.academicInfo.previousInstitution || '',
+        notes: student.notes || '',
+        status: student.status
       });
+    } else {
+      setEditingStudent(null);
+      resetStudentForm();
     }
-    setOpenDialog({ type, action });
+    setStudentDialog(true);
   };
 
-  const resetForm = (): void => {
-    setForm({ id: '', email: '', username: '', contact: '', nic: '', work: '', address: '', password: '', role: '' });
-    setCourseForm({ id: '', title: '', duration: '', description: '', price: 0, availableSeats: 0 });
+  const resetStudentForm = () => {
+    setStudentForm({
+      firstName: '',
+      lastName: '',
+      email: '',
+      phone: '',
+      address: '',
+      dateOfBirth: '',
+      nic: '',
+      guardianName: '',
+      guardianPhone: '',
+      courseIds: [],
+      previousEducation: '',
+      previousInstitution: '',
+      notes: '',
+      status: 'active'
+    });
+    setEditingStudent(null);
   };
 
-  // Fixed search change handler with proper typing
-  const handleSearchChange = (type: SearchKey, value: string): void => {
-    setSearch(prev => ({ ...prev, [type]: value }));
+  // User Management Functions
+  const handleUserSubmit = async () => {
+    try {
+      const method = editingUser ? 'PUT' : 'POST';
+      const url = editingUser ? `/api/users/${editingUser._id}` : '/api/users';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...userForm, role: 'user' }),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        showAlert('success', `User ${editingUser ? 'updated' : 'created'} successfully`);
+        await fetchData();
+        setUserDialog(false);
+        resetUserForm();
+      } else {
+        const errorData = await response.json();
+        showAlert('error', errorData.message || 'Operation failed');
+      }
+    } catch (error) {
+      showAlert('error', 'Network error occurred');
+    }
   };
 
-  const getInitials = (name: string): string => {
-    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  const handleUserDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/users/${id}`, { 
+        method: 'DELETE', 
+        credentials: 'include' 
+      });
+
+      if (response.ok) {
+        showAlert('success', 'User deleted successfully');
+        await fetchData();
+      } else {
+        showAlert('error', 'Delete operation failed');
+      }
+    } catch (error) {
+      showAlert('error', 'Network error occurred');
+    }
   };
 
-  const formatDate = (dateString?: string): string => {
-    if (!dateString) return 'N/A';
-    return new Date(dateString).toLocaleDateString();
+  const openUserForm = (userItem?: User) => {
+    if (userItem) {
+      setEditingUser(userItem);
+      setUserForm({
+        email: userItem.email,
+        username: userItem.username,
+        contact: userItem.contact || '',
+        nic: userItem.nic || '',
+        work: userItem.work || '',
+        address: userItem.address || '',
+        password: ''
+      });
+    } else {
+      setEditingUser(null);
+      resetUserForm();
+    }
+    setUserDialog(true);
   };
 
-  // Statistics calculations
+  const resetUserForm = () => {
+    setUserForm({
+      email: '',
+      username: '',
+      contact: '',
+      nic: '',
+      work: '',
+      address: '',
+      password: ''
+    });
+    setEditingUser(null);
+  };
+
+  // Director Management Functions
+  const handleDirectorSubmit = async () => {
+    try {
+      const method = editingDirector ? 'PUT' : 'POST';
+      const url = editingDirector ? `/api/users/${editingDirector._id}` : '/api/users';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...directorForm, role: 'director' }),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        showAlert('success', `Director ${editingDirector ? 'updated' : 'created'} successfully`);
+        await fetchData();
+        setDirectorDialog(false);
+        resetDirectorForm();
+      } else {
+        const errorData = await response.json();
+        showAlert('error', errorData.message || 'Operation failed');
+      }
+    } catch (error) {
+      showAlert('error', 'Network error occurred');
+    }
+  };
+
+  const handleDirectorDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/users/${id}`, { 
+        method: 'DELETE', 
+        credentials: 'include' 
+      });
+
+      if (response.ok) {
+        showAlert('success', 'Director deleted successfully');
+        await fetchData();
+      } else {
+        showAlert('error', 'Delete operation failed');
+      }
+    } catch (error) {
+      showAlert('error', 'Network error occurred');
+    }
+  };
+
+  const openDirectorForm = (director?: User) => {
+    if (director) {
+      setEditingDirector(director);
+      setDirectorForm({
+        email: director.email,
+        username: director.username,
+        contact: director.contact || '',
+        nic: director.nic || '',
+        work: director.work || '',
+        address: director.address || '',
+        password: ''
+      });
+    } else {
+      setEditingDirector(null);
+      resetDirectorForm();
+    }
+    setDirectorDialog(true);
+  };
+
+  const resetDirectorForm = () => {
+    setDirectorForm({
+      email: '',
+      username: '',
+      contact: '',
+      nic: '',
+      work: '',
+      address: '',
+      password: ''
+    });
+    setEditingDirector(null);
+  };
+
+  // Admin Management Functions
+  const handleAdminSubmit = async () => {
+    try {
+      const method = editingAdmin ? 'PUT' : 'POST';
+      const url = editingAdmin ? `/api/users/${editingAdmin._id}` : '/api/users';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...adminForm, role: 'admin' }),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        showAlert('success', `Admin ${editingAdmin ? 'updated' : 'created'} successfully`);
+        await fetchData();
+        setAdminDialog(false);
+        resetAdminForm();
+      } else {
+        const errorData = await response.json();
+        showAlert('error', errorData.message || 'Operation failed');
+      }
+    } catch (error) {
+      showAlert('error', 'Network error occurred');
+    }
+  };
+
+  const handleAdminDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/users/${id}`, { 
+        method: 'DELETE', 
+        credentials: 'include' 
+      });
+
+      if (response.ok) {
+        showAlert('success', 'Admin deleted successfully');
+        await fetchData();
+      } else {
+        showAlert('error', 'Delete operation failed');
+      }
+    } catch (error) {
+      showAlert('error', 'Network error occurred');
+    }
+  };
+
+  const openAdminForm = (admin?: User) => {
+    if (admin) {
+      setEditingAdmin(admin);
+      setAdminForm({
+        email: admin.email,
+        username: admin.username,
+        contact: admin.contact || '',
+        nic: admin.nic || '',
+        work: admin.work || '',
+        address: admin.address || '',
+        password: ''
+      });
+    } else {
+      setEditingAdmin(null);
+      resetAdminForm();
+    }
+    setAdminDialog(true);
+  };
+
+  const resetAdminForm = () => {
+    setAdminForm({
+      email: '',
+      username: '',
+      contact: '',
+      nic: '',
+      work: '',
+      address: '',
+      password: ''
+    });
+    setEditingAdmin(null);
+  };
+
+  // Course Management Functions
+  const handleCourseSubmit = async () => {
+    try {
+      const method = editingCourse ? 'PUT' : 'POST';
+      const url = editingCourse ? `/api/courses/${editingCourse._id}` : '/api/courses';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(courseForm),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        showAlert('success', `Course ${editingCourse ? 'updated' : 'created'} successfully`);
+        await fetchData();
+        setCourseDialog(false);
+        resetCourseForm();
+      } else {
+        const errorData = await response.json();
+        showAlert('error', errorData.message || 'Operation failed');
+      }
+    } catch (error) {
+      showAlert('error', 'Network error occurred');
+    }
+  };
+
+  const handleCourseDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/courses/${id}`, { 
+        method: 'DELETE', 
+        credentials: 'include' 
+      });
+
+      if (response.ok) {
+        showAlert('success', 'Course deleted successfully');
+        await fetchData();
+      } else {
+        showAlert('error', 'Delete operation failed');
+      }
+    } catch (error) {
+      showAlert('error', 'Network error occurred');
+    }
+  };
+
+  const openCourseForm = (course?: Course) => {
+    if (course) {
+      setEditingCourse(course);
+      setCourseForm({
+        title: course.title,
+        duration: course.duration,
+        description: course.description,
+        price: course.price,
+        availableSeats: course.availableSeats,
+        instructor: course.instructor || '',
+        category: course.category || ''
+      });
+    } else {
+      setEditingCourse(null);
+      resetCourseForm();
+    }
+    setCourseDialog(true);
+  };
+
+  const resetCourseForm = () => {
+    setCourseForm({
+      title: '',
+      duration: '',
+      description: '',
+      price: 0,
+      availableSeats: 0,
+      instructor: '',
+      category: ''
+    });
+    setEditingCourse(null);
+  };
+
+  // Contact Management Functions
+  const handleContactSubmit = async () => {
+    try {
+      const method = editingContact ? 'PUT' : 'POST';
+      const url = editingContact ? `/api/contacts/${editingContact._id}` : '/api/contacts';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(contactForm),
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        showAlert('success', `Contact ${editingContact ? 'updated' : 'created'} successfully`);
+        await fetchData();
+        setContactDialog(false);
+        resetContactForm();
+      } else {
+        const errorData = await response.json();
+        showAlert('error', errorData.message || 'Operation failed');
+      }
+    } catch (error) {
+      showAlert('error', 'Network error occurred');
+    }
+  };
+
+  const handleContactDelete = async (id: string) => {
+    try {
+      const response = await fetch(`/api/contacts/${id}`, { 
+        method: 'DELETE', 
+        credentials: 'include' 
+      });
+
+      if (response.ok) {
+        showAlert('success', 'Contact deleted successfully');
+        await fetchData();
+      } else {
+        showAlert('error', 'Delete operation failed');
+      }
+    } catch (error) {
+      showAlert('error', 'Network error occurred');
+    }
+  };
+
+  const openContactForm = (contact?: Contact) => {
+    if (contact) {
+      setEditingContact(contact);
+      setContactForm({
+        name: contact.name,
+        email: contact.email,
+        message: contact.message,
+        read: contact.read
+      });
+    } else {
+      setEditingContact(null);
+      resetContactForm();
+    }
+    setContactDialog(true);
+  };
+
+  const resetContactForm = () => {
+    setContactForm({
+      name: '',
+      email: '',
+      message: '',
+      read: false
+    });
+    setEditingContact(null);
+  };
+
+  // Filter functions
+  const filteredStudents = students.filter(student =>
+    student.fullName.toLowerCase().includes(studentSearch.toLowerCase()) ||
+    student.email.toLowerCase().includes(studentSearch.toLowerCase()) ||
+    student.studentId.toLowerCase().includes(studentSearch.toLowerCase())
+  );
+
+  const filteredUsers = regularUsers.filter(user =>
+    user.username.toLowerCase().includes(userSearch.toLowerCase()) ||
+    user.email.toLowerCase().includes(userSearch.toLowerCase())
+  );
+
+  const filteredDirectors = directors.filter(director =>
+    director.username.toLowerCase().includes(directorSearch.toLowerCase()) ||
+    director.email.toLowerCase().includes(directorSearch.toLowerCase())
+  );
+
+  const filteredAdmins = admins.filter(admin =>
+    admin.username.toLowerCase().includes(adminSearch.toLowerCase()) ||
+    admin.email.toLowerCase().includes(adminSearch.toLowerCase())
+  ).filter(admin => admin._id !== user?._id);
+
+  const filteredCourses = courses.filter(course =>
+    course.title.toLowerCase().includes(courseSearch.toLowerCase()) ||
+    course.category?.toLowerCase().includes(courseSearch.toLowerCase())
+  );
+
+  const filteredContacts = contacts.filter(contact =>
+    contact.name.toLowerCase().includes(contactSearch.toLowerCase()) ||
+    contact.email.toLowerCase().includes(contactSearch.toLowerCase())
+  );
+
   const stats = {
     totalStudents: students.length,
     totalDirectors: directors.length,
     totalAdmins: admins.length,
+    totalUsers: regularUsers.length,
     totalCourses: courses.length,
     totalContacts: contacts.length,
-    totalRevenue: courses.reduce((sum, course) => sum + (course.price * (course.enrolledStudents || 0)), 0),
     unreadContacts: contacts.filter(contact => !contact.read).length,
-    availableSeats: courses.reduce((sum, course) => sum + course.availableSeats, 0)
+    activeStudents: students.filter(student => student.status === 'active').length,
+    totalEnrollments: students.reduce((sum, student) => sum + student.enrolledCourses.length, 0)
   };
-
-  const StatCard: React.FC<StatCardProps> = ({ title, value, icon: Icon, color, description, trend }) => (
-    <Card className="backdrop-blur-xl bg-white/30 border border-white/20 hover:bg-white/40 transition-all duration-300 hover:scale-105 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-white/10 to-transparent rounded-full transform translate-x-16 -translate-y-16"></div>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-gray-700">{title}</CardTitle>
-        <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${color} flex items-center justify-center text-white shadow-lg`}>
-          <Icon className="h-6 w-6" />
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="text-3xl font-bold text-gray-900 mb-2">{value}</div>
-        {description && (
-          <div className="flex items-center text-sm text-gray-600">
-            {trend && (
-              <div className={`flex items-center mr-2 ${trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                <TrendingUp className="w-4 h-4 mr-1" />
-                <span>{Math.abs(trend)}%</span>
-              </div>
-            )}
-            <span>{description}</span>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  );
-
-  // Fixed DataTable component with proper typing
-  const DataTable: React.FC<DataTableProps> = ({ 
-    data, 
-    searchKey, 
-    type, 
-    fields, 
-    onEdit, 
-    onDelete, 
-    customActions,
-    searchState,
-    onSearchChange
-  }) => {
-    // Now TypeScript knows that searchState[type] is valid because type is SearchKey
-    const searchValue = searchState[type];
-    const filtered = data.filter((item: any) => {
-      const searchableValue = item[searchKey];
-      if (typeof searchableValue === 'string') {
-        return searchableValue.toLowerCase().includes(searchValue.toLowerCase());
-      }
-      return false;
-    });
-
-    return (
-      <div className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder={`Search ${type}...`}
-              value={searchValue}
-              onChange={(e) => onSearchChange(type, e.target.value)}
-              className="pl-10 bg-white/50 border-white/20 backdrop-blur-sm"
-            />
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" className="bg-white/50 backdrop-blur-sm">
-              <Filter className="w-4 h-4 mr-2" />
-              Filter
-            </Button>
-            <Button variant="outline" size="sm" className="bg-white/50 backdrop-blur-sm">
-              <Download className="w-4 h-4 mr-2" />
-              Export
-            </Button>
-            <Button onClick={() => openForm(type, 'add')} className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700">
-              <Plus className="mr-2 h-4 w-4" /> Add {type.charAt(0).toUpperCase() + type.slice(1)}
-            </Button>
-          </div>
-        </div>
-
-        <Card className="backdrop-blur-xl bg-white/30 border border-white/20">
-          <ScrollArea className="h-[500px]">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-white/20">
-                  {fields.map((field: string) => (
-                    <TableHead key={field} className="font-semibold text-gray-700">
-                      {field.charAt(0).toUpperCase() + field.slice(1)}
-                    </TableHead>
-                  ))}
-                  <TableHead className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={fields.length + 1} className="text-center py-12">
-                      <div className="flex flex-col items-center space-y-2">
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                          <Search className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <p className="text-gray-500 font-medium">No {type} found</p>
-                        <p className="text-sm text-gray-400">Try adjusting your search criteria</p>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  filtered.map((item: any) => (
-                    <TableRow key={item._id} className="hover:bg-white/20 transition-colors border-white/10">
-                      {fields.map((field: string) => (
-                        <TableCell key={field} className="text-gray-700">
-                          {field === 'price' ? `LKR ${item[field]?.toLocaleString()}` :
-                           field === 'read' ? (
-                             <Badge variant={item[field] ? 'default' : 'secondary'} className="font-medium">
-                               {item[field] ? 'Read' : 'Unread'}
-                             </Badge>
-                           ) :
-                           field === 'message' ? (
-                             <div className="max-w-xs truncate" title={item[field]}>
-                               {item[field]}
-                             </div>
-                           ) :
-                           item[field] || 'N/A'}
-                        </TableCell>
-                      ))}
-                      <TableCell className="text-right">
-                        <div className="flex justify-end space-x-2">
-                          {customActions && customActions(item)}
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            onClick={() => onEdit(item)}
-                            className="h-8 w-8 p-0 hover:bg-blue-100"
-                          >
-                            <Edit className="h-4 w-4 text-blue-600" />
-                          </Button>
-                          <DeleteConfirm onConfirm={() => onDelete(item._id)}>
-                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-red-100">
-                              <Trash className="h-4 w-4 text-red-600" />
-                            </Button>
-                          </DeleteConfirm>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </ScrollArea>
-        </Card>
-      </div>
-    );
-  };
-
-  const ContactDetailDialog: React.FC<ContactDetailDialogProps> = ({ contact, open, onClose }) => (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl backdrop-blur-xl bg-white/95 border border-white/20">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <MessageSquare className="h-6 w-6 text-blue-600" />
-            Contact Details
-          </DialogTitle>
-        </DialogHeader>
-        {contact && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                <Users className="h-5 w-5 text-blue-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Name</p>
-                  <p className="font-medium">{contact.name}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
-                <Mail className="h-5 w-5 text-green-600" />
-                <div>
-                  <p className="text-sm text-gray-600">Email</p>
-                  <p className="font-medium">{contact.email}</p>
-                </div>
-              </div>
-            </div>
-            <Separator />
-            <div>
-              <Label className="text-sm font-medium text-gray-700 mb-2 block">Message</Label>
-              <div className="p-4 bg-gray-50 rounded-lg border">
-                <p className="text-gray-800 leading-relaxed">{contact.message}</p>
-              </div>
-            </div>
-            <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Calendar className="h-4 w-4" />
-                <span>Received: {formatDate(contact.createdAt)}</span>
-              </div>
-              <Badge variant={contact.read ? 'default' : 'secondary'}>
-                {contact.read ? 'Read' : 'Unread'}
-              </Badge>
-            </div>
-          </div>
-        )}
-      </DialogContent>
-    </Dialog>
-  );
 
   if (loading) {
     return (
@@ -574,13 +871,6 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <Header role="admin" />
-      
-      {/* Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-200 rounded-full opacity-10 blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-200 rounded-full opacity-10 blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 right-1/3 w-64 h-64 bg-green-200 rounded-full opacity-10 blur-3xl animate-pulse delay-500"></div>
-      </div>
       
       {/* Alert */}
       {alert.show && (
@@ -666,233 +956,553 @@ export default function AdminDashboard() {
                     </div>
                   </div>
                 </div>
-                <div className="flex flex-col space-y-2">
-                  <Button variant="outline" className="bg-white/50 backdrop-blur-sm">
-                    <Settings className="w-4 h-4 mr-2" />
-                    Settings
-                  </Button>
-                  <Button variant="outline" className="bg-white/50 backdrop-blur-sm">
-                    <Bell className="w-4 h-4 mr-2" />
-                    Notifications
-                  </Button>
-                </div>
               </div>
             </CardHeader>
           </Card>
 
           {/* Statistics Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatCard
-              title="Total Students"
-              value={stats.totalStudents.toLocaleString()}
-              icon={Users}
-              color="from-blue-500 to-blue-600"
-              description="Active learners"
-              trend={12}
-            />
-            <StatCard
-              title="Total Courses"
-              value={stats.totalCourses.toLocaleString()}
-              icon={BookOpen}
-              color="from-green-500 to-green-600"
-              description="Available courses"
-              trend={8}
-            />
-            <StatCard
-              title="Unread Messages"
-              value={stats.unreadContacts.toLocaleString()}
-              icon={MessageSquare}
-              color="from-orange-500 to-orange-600"
-              description="Pending responses"
-              trend={-15}
-            />
-            <StatCard
-              title="Available Seats"
-              value={stats.availableSeats.toLocaleString()}
-              icon={Target}
-              color="from-purple-500 to-purple-600"
-              description="Across all courses"
-              trend={5}
-            />
+            <Card className="backdrop-blur-xl bg-white/30 border border-white/20 hover:bg-white/40 transition-all duration-300 hover:scale-105">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-700">Total Students</CardTitle>
+                <GraduationCap className="h-4 w-4 text-blue-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalStudents}</div>
+                <p className="text-xs text-gray-600">Active: {stats.activeStudents}</p>
+              </CardContent>
+            </Card>
+
+            <Card className="backdrop-blur-xl bg-white/30 border border-white/20 hover:bg-white/40 transition-all duration-300 hover:scale-105">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-700">Total Users</CardTitle>
+                <Users className="h-4 w-4 text-green-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalUsers}</div>
+                <p className="text-xs text-gray-600">Regular users</p>
+              </CardContent>
+            </Card>
+
+            <Card className="backdrop-blur-xl bg-white/30 border border-white/20 hover:bg-white/40 transition-all duration-300 hover:scale-105">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-700">Total Courses</CardTitle>
+                <BookOpen className="h-4 w-4 text-purple-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalCourses}</div>
+                <p className="text-xs text-gray-600">Available courses</p>
+              </CardContent>
+            </Card>
+
+            <Card className="backdrop-blur-xl bg-white/30 border border-white/20 hover:bg-white/40 transition-all duration-300 hover:scale-105">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-gray-700">Messages</CardTitle>
+                <MessageSquare className="h-4 w-4 text-orange-600" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stats.totalContacts}</div>
+                <p className="text-xs text-gray-600">Unread: {stats.unreadContacts}</p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Management Tabs */}
           <Card className="backdrop-blur-xl bg-white/30 border border-white/20 shadow-2xl">
             <CardContent className="p-6">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                <TabsList className="grid w-full grid-cols-2 lg:grid-cols-5 bg-white/50 backdrop-blur-sm">
-                  <TabsTrigger value="overview" className="flex items-center gap-2 data-[state=active]:bg-white/70">
-                    <BarChart3 className="h-4 w-4" />
-                    <span className="hidden sm:inline">Overview</span>
+                <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 bg-white/50 backdrop-blur-sm">
+                  <TabsTrigger value="overview" className="flex items-center gap-2">
+                    <Settings className="h-4 w-4" />
+                    Overview
                   </TabsTrigger>
-                  <TabsTrigger value="students" className="flex items-center gap-2 data-[state=active]:bg-white/70">
+                  <TabsTrigger value="students" className="flex items-center gap-2">
+                    <GraduationCap className="h-4 w-4" />
+                    Students
+                  </TabsTrigger>
+                  <TabsTrigger value="users" className="flex items-center gap-2">
                     <Users className="h-4 w-4" />
-                    <span className="hidden sm:inline">Students</span>
+                    Users
                   </TabsTrigger>
-                  <TabsTrigger value="staff" className="flex items-center gap-2 data-[state=active]:bg-white/70">
-                    <UserCheck className="h-4 w-4" />
-                    <span className="hidden sm:inline">Staff</span>
+                  <TabsTrigger value="directors" className="flex items-center gap-2">
+                    <Crown className="h-4 w-4" />
+                    Directors
                   </TabsTrigger>
-                  <TabsTrigger value="courses" className="flex items-center gap-2 data-[state=active]:bg-white/70">
+                  <TabsTrigger value="courses" className="flex items-center gap-2">
                     <BookOpen className="h-4 w-4" />
-                    <span className="hidden sm:inline">Courses</span>
+                    Courses
                   </TabsTrigger>
-                  <TabsTrigger value="contacts" className="flex items-center gap-2 data-[state=active]:bg-white/70">
+                  <TabsTrigger value="contacts" className="flex items-center gap-2">
                     <MessageSquare className="h-4 w-4" />
-                    <span className="hidden sm:inline">Messages</span>
+                    Messages
                   </TabsTrigger>
                 </TabsList>
 
+                {/* Overview Tab */}
                 <TabsContent value="overview" className="space-y-6">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <Card className="backdrop-blur-xl bg-white/40 border border-white/30">
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Activity className="h-5 w-5 text-blue-600" />
-                          System Activity
-                        </CardTitle>
+                        <CardTitle>System Overview</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
-                          <span className="font-medium">Total Users</span>
-                          <Badge variant="secondary" className="text-lg">
-                            {stats.totalStudents + stats.totalDirectors + stats.totalAdmins}
-                          </Badge>
+                        <div className="flex justify-between">
+                          <span>Total Students:</span>
+                          <Badge>{stats.totalStudents}</Badge>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
-                          <span className="font-medium">Active Courses</span>
-                          <Badge variant="secondary" className="text-lg">{stats.totalCourses}</Badge>
+                        <div className="flex justify-between">
+                          <span>Total Users:</span>
+                          <Badge>{stats.totalUsers}</Badge>
                         </div>
-                        <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
-                          <span className="font-medium">Total Revenue</span>
-                          <Badge variant="secondary" className="text-lg">
-                            LKR {stats.totalRevenue.toLocaleString()}
-                          </Badge>
+                        <div className="flex justify-between">
+                          <span>Total Directors:</span>
+                          <Badge>{stats.totalDirectors}</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Total Admins:</span>
+                          <Badge>{stats.totalAdmins}</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Total Courses:</span>
+                          <Badge>{stats.totalCourses}</Badge>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Total Enrollments:</span>
+                          <Badge>{stats.totalEnrollments}</Badge>
                         </div>
                       </CardContent>
                     </Card>
 
                     <Card className="backdrop-blur-xl bg-white/40 border border-white/30">
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Zap className="h-5 w-5 text-orange-600" />
-                          Quick Actions
-                        </CardTitle>
+                        <CardTitle>Quick Actions</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3">
-                        <Button 
-                          onClick={() => openForm('user', 'add')} 
-                          className="w-full justify-start bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700"
-                        >
+                        <Button onClick={() => openStudentForm()} className="w-full justify-start">
                           <Plus className="w-4 h-4 mr-2" />
                           Add New Student
                         </Button>
-                        <Button 
-                          onClick={() => openForm('course', 'add')} 
-                          className="w-full justify-start bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
-                        >
+                        <Button onClick={() => openUserForm()} className="w-full justify-start">
                           <Plus className="w-4 h-4 mr-2" />
-                          Create New Course
+                          Add New User
                         </Button>
-                        <Button 
-                          onClick={() => openForm('director', 'add')} 
-                          className="w-full justify-start bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700"
-                        >
+                        <Button onClick={() => openDirectorForm()} className="w-full justify-start">
                           <Plus className="w-4 h-4 mr-2" />
-                          Add Director
+                          Add New Director
+                        </Button>
+                        <Button onClick={() => openCourseForm()} className="w-full justify-start">
+                          <Plus className="w-4 h-4 mr-2" />
+                          Add New Course
                         </Button>
                       </CardContent>
                     </Card>
                   </div>
                 </TabsContent>
 
-                <TabsContent value="students">
-                  <DataTable
-                    data={students}
-                    searchKey="username"
-                    type="students"
-                    fields={['email', 'username', 'contact', 'nic', 'work', 'address']}
-                    onEdit={(item: User) => openForm('user', 'edit', item)}
-                    onDelete={(id: string) => handleDelete('user', id)}
-                    searchState={search}
-                    onSearchChange={handleSearchChange}
-                  />
-                </TabsContent>
-
-                <TabsContent value="staff">
-                  <div className="space-y-8">
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <Crown className="h-6 w-6 text-purple-600" />
-                        Directors ({directors.length})
-                      </h3>
-                      <DataTable
-                        data={directors}
-                        searchKey="username"
-                        type="directors"
-                        fields={['email', 'username', 'contact', 'nic', 'address']}
-                        onEdit={(item: User) => openForm('director', 'edit', item)}
-                        onDelete={(id: string) => handleDelete('director', id)}
-                        searchState={search}
-                        onSearchChange={handleSearchChange}
+                {/* Students Tab */}
+                <TabsContent value="students" className="space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        placeholder="Search students..."
+                        value={studentSearch}
+                        onChange={(e) => setStudentSearch(e.target.value)}
+                        className="pl-10 bg-white/50 border-white/20 backdrop-blur-sm"
                       />
                     </div>
-                    
-                    <Separator className="bg-white/20" />
-                    
-                    <div>
-                      <h3 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                        <Shield className="h-6 w-6 text-red-600" />
-                        Administrators ({admins.length})
-                      </h3>
-                      <DataTable
-                        data={admins}
-                        searchKey="username"
-                        type="admins"
-                        fields={['email', 'username', 'contact', 'nic', 'address']}
-                        onEdit={(item: User) => openForm('admin', 'edit', item)}
-                        onDelete={(id: string) => handleDelete('admin', id)}
-                        searchState={search}
-                        onSearchChange={handleSearchChange}
+                    <Button onClick={() => openStudentForm()} className="bg-blue-500">
+                      <Plus className="mr-2 h-4 w-4" /> Add Student
+                    </Button>
+                  </div>
+
+                  <Card className="backdrop-blur-xl bg-white/30 border border-white/20">
+                    <ScrollArea className="h-[500px]">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Student</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Phone</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Courses</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredStudents.map((student) => (
+                            <TableRow key={student._id}>
+                              <TableCell>
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${student.firstName}${student.lastName}`} />
+                                    <AvatarFallback>{getInitials(student.fullName)}</AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <div className="font-medium">{student.fullName}</div>
+                                    <div className="text-xs text-gray-500">{student.studentId}</div>
+                                  </div>
+                                </div>
+                              </TableCell>
+                              <TableCell>{student.email}</TableCell>
+                              <TableCell>{student.phone}</TableCell>
+                              <TableCell>
+                                <Badge className={getStatusColor(student.status)}>
+                                  <div className="flex items-center gap-1">
+                                    {getStatusIcon(student.status)}
+                                    {student.status}
+                                  </div>
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{student.enrolledCourses.length}</TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end space-x-2">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => {
+                                      setSelectedStudent(student);
+                                      setStudentDetailDialog(true);
+                                    }}
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => openStudentForm(student)}
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <DeleteConfirm onConfirm={() => handleStudentDelete(student._id)}>
+                                    <Trash className="h-4 w-4" />
+                                  </DeleteConfirm>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </ScrollArea>
+                  </Card>
+                </TabsContent>
+
+                {/* Users Tab */}
+                <TabsContent value="users" className="space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        placeholder="Search users..."
+                        value={userSearch}
+                        onChange={(e) => setUserSearch(e.target.value)}
+                        className="pl-10 bg-white/50 border-white/20 backdrop-blur-sm"
                       />
+                    </div>
+                    <Button onClick={() => openUserForm()} className="bg-blue-500">
+                      <Plus className="mr-2 h-4 w-4" /> Add User
+                    </Button>
+                  </div>
+
+                  <Card className="backdrop-blur-xl bg-white/30 border border-white/20">
+                    <ScrollArea className="h-[500px]">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Username</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Contact</TableHead>
+                            <TableHead>NIC</TableHead>
+                            <TableHead>Work</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredUsers.map((userItem) => (
+                            <TableRow key={userItem._id}>
+                              <TableCell className="font-medium">{userItem.username}</TableCell>
+                              <TableCell>{userItem.email}</TableCell>
+                              <TableCell>{userItem.contact || 'N/A'}</TableCell>
+                              <TableCell>{userItem.nic || 'N/A'}</TableCell>
+                              <TableCell>{userItem.work || 'N/A'}</TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end space-x-2">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => openUserForm(userItem)}
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <DeleteConfirm onConfirm={() => handleUserDelete(userItem._id)}>
+                                    <Trash className="h-4 w-4" />
+                                  </DeleteConfirm>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </ScrollArea>
+                  </Card>
+                </TabsContent>
+
+                {/* Directors Tab */}
+                <TabsContent value="directors" className="space-y-4">
+                  <div className="space-y-6">
+                    <div>
+                      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
+                        <div className="relative flex-1 max-w-sm">
+                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                          <Input
+                            placeholder="Search directors..."
+                            value={directorSearch}
+                            onChange={(e) => setDirectorSearch(e.target.value)}
+                            className="pl-10 bg-white/50 border-white/20 backdrop-blur-sm"
+                          />
+                        </div>
+                        <Button onClick={() => openDirectorForm()} className="bg-gradient-to-r from-purple-500 to-pink-600">
+                          <Plus className="mr-2 h-4 w-4" /> Add Director
+                        </Button>
+                      </div>
+
+                      <Card className="backdrop-blur-xl bg-white/30 border border-white/20">
+                        <ScrollArea className="h-[300px]">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Username</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Contact</TableHead>
+                                <TableHead>NIC</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {filteredDirectors.map((director) => (
+                                <TableRow key={director._id}>
+                                  <TableCell className="font-medium">{director.username}</TableCell>
+                                  <TableCell>{director.email}</TableCell>
+                                  <TableCell>{director.contact || 'N/A'}</TableCell>
+                                  <TableCell>{director.nic || 'N/A'}</TableCell>
+                                  <TableCell className="text-right">
+                                    <div className="flex justify-end space-x-2">
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        onClick={() => openDirectorForm(director)}
+                                        className="h-8 w-8 p-0"
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                      <DeleteConfirm onConfirm={() => handleDirectorDelete(director._id)}>
+                                        <Trash className="h-4 w-4" />
+                                      </DeleteConfirm>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </ScrollArea>
+                      </Card>
+                    </div>
+
+                    {/* Admins Section */}
+                    <div>
+                      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-4">
+                        <h3 className="text-lg font-semibold">Administrators</h3>
+                        <Button onClick={() => openAdminForm()} className="bg-gradient-to-r from-red-500 to-orange-600">
+                          <Plus className="mr-2 h-4 w-4" /> Add Admin
+                        </Button>
+                      </div>
+
+                      <Card className="backdrop-blur-xl bg-white/30 border border-white/20">
+                        <ScrollArea className="h-[300px]">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead>Username</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Contact</TableHead>
+                                <TableHead>NIC</TableHead>
+                                <TableHead className="text-right">Actions</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {filteredAdmins.map((admin) => (
+                                <TableRow key={admin._id}>
+                                  <TableCell className="font-medium">{admin.username}</TableCell>
+                                  <TableCell>{admin.email}</TableCell>
+                                  <TableCell>{admin.contact || 'N/A'}</TableCell>
+                                  <TableCell>{admin.nic || 'N/A'}</TableCell>
+                                  <TableCell className="text-right">
+                                    <div className="flex justify-end space-x-2">
+                                      <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        onClick={() => openAdminForm(admin)}
+                                        className="h-8 w-8 p-0"
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                      <DeleteConfirm onConfirm={() => handleAdminDelete(admin._id)}>
+                                        <Trash className="h-4 w-4" />
+                                      </DeleteConfirm>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </ScrollArea>
+                      </Card>
                     </div>
                   </div>
                 </TabsContent>
 
-                <TabsContent value="courses">
-                  <DataTable
-                    data={courses}
-                    searchKey="title"
-                    type="courses"
-                    fields={['title', 'duration', 'price', 'availableSeats']}
-                    onEdit={(item: Course) => openForm('course', 'edit', item)}
-                    onDelete={(id: string) => handleDelete('course', id)}
-                    searchState={search}
-                    onSearchChange={handleSearchChange}
-                  />
+                {/* Courses Tab */}
+                <TabsContent value="courses" className="space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        placeholder="Search courses..."
+                        value={courseSearch}
+                        onChange={(e) => setCourseSearch(e.target.value)}
+                        className="pl-10 bg-white/50 border-white/20 backdrop-blur-sm"
+                      />
+                    </div>
+                    <Button onClick={() => openCourseForm()} className="bg-gradient-to-r from-indigo-500 to-purple-600">
+                      <Plus className="mr-2 h-4 w-4" /> Add Course
+                    </Button>
+                  </div>
+
+                  <Card className="backdrop-blur-xl bg-white/30 border border-white/20">
+                    <ScrollArea className="h-[500px]">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Duration</TableHead>
+                            <TableHead>Price</TableHead>
+                            <TableHead>Available Seats</TableHead>
+                            <TableHead>Instructor</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredCourses.map((course) => (
+                            <TableRow key={course._id}>
+                              <TableCell className="font-medium">{course.title}</TableCell>
+                              <TableCell>{course.duration}</TableCell>
+                              <TableCell>LKR {course.price.toLocaleString()}</TableCell>
+                              <TableCell>{course.availableSeats}</TableCell>
+                              <TableCell>{course.instructor || 'N/A'}</TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end space-x-2">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => openCourseForm(course)}
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <DeleteConfirm onConfirm={() => handleCourseDelete(course._id)}>
+                                    <Trash className="h-4 w-4" />
+                                  </DeleteConfirm>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </ScrollArea>
+                  </Card>
                 </TabsContent>
 
-                <TabsContent value="contacts">
-                  <DataTable
-                    data={contacts}
-                    searchKey="name"
-                    type="contacts"
-                    fields={['name', 'email', 'message', 'read']}
-                    onEdit={() => {}}
-                    onDelete={(id: string) => handleDelete('contact', id)}
-                    searchState={search}
-                    onSearchChange={handleSearchChange}
-                    customActions={(contact: Contact) => (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setSelectedContact(contact)}
-                        className="h-8 w-8 p-0 hover:bg-green-100"
-                      >
-                        <Eye className="h-4 w-4 text-green-600" />
-                      </Button>
-                    )}
-                  />
+                {/* Contacts Tab */}
+                <TabsContent value="contacts" className="space-y-4">
+                  <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+                    <div className="relative flex-1 max-w-sm">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                      <Input
+                        placeholder="Search contacts..."
+                        value={contactSearch}
+                        onChange={(e) => setContactSearch(e.target.value)}
+                        className="pl-10 bg-white/50 border-white/20 backdrop-blur-sm"
+                      />
+                    </div>
+                    <Button onClick={() => openContactForm()} className="bg-gradient-to-r from-orange-500 to-red-600">
+                      <Plus className="mr-2 h-4 w-4" /> Add Contact
+                    </Button>
+                  </div>
+
+                  <Card className="backdrop-blur-xl bg-white/30 border border-white/20">
+                    <ScrollArea className="h-[500px]">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Name</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Message</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead>Date</TableHead>
+                            <TableHead className="text-right">Actions</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {filteredContacts.map((contact) => (
+                            <TableRow key={contact._id}>
+                              <TableCell className="font-medium">{contact.name}</TableCell>
+                              <TableCell>{contact.email}</TableCell>
+                              <TableCell>
+                                <div className="max-w-xs truncate" title={contact.message}>
+                                  {contact.message}
+                                </div>
+                              </TableCell>
+                              <TableCell>
+                                <Badge variant={contact.read ? 'default' : 'secondary'}>
+                                  {contact.read ? 'Read' : 'Unread'}
+                                </Badge>
+                              </TableCell>
+                              <TableCell>{formatDate(contact.createdAt)}</TableCell>
+                              <TableCell className="text-right">
+                                <div className="flex justify-end space-x-2">
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => {
+                                      setSelectedContact(contact);
+                                      setContactDetailDialog(true);
+                                    }}
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                  <Button 
+                                    variant="ghost" 
+                                    size="sm" 
+                                    onClick={() => openContactForm(contact)}
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <Edit className="h-4 w-4" />
+                                  </Button>
+                                  <DeleteConfirm onConfirm={() => handleContactDelete(contact._id)}>
+                                    <Trash className="h-4 w-4" />
+                                  </DeleteConfirm>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </ScrollArea>
+                  </Card>
                 </TabsContent>
               </Tabs>
             </CardContent>
@@ -902,246 +1512,774 @@ export default function AdminDashboard() {
 
       <Footer role="admin" />
 
-      {/* Contact Detail Dialog */}
-      <ContactDetailDialog
-        contact={selectedContact}
-        open={!!selectedContact}
-        onClose={() => setSelectedContact(null)}
-      />
-
-      {/* User Form Dialog */}
-      <Dialog 
-        open={openDialog.type !== 'course' && !!openDialog.type} 
-        onOpenChange={(open) => {
-          if (!open) {
-            setOpenDialog({ type: '', action: '' });
-            resetForm();
-          }
-        }}
-      >
-        <DialogContent className="max-w-md backdrop-blur-xl bg-white/95 border border-white/20">
+      {/* Student Form Dialog */}
+      <Dialog open={studentDialog} onOpenChange={setStudentDialog}>
+        <DialogContent className="max-w-4xl backdrop-blur-xl bg-white/95 border border-white/20 max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              <Users className="h-6 w-6 text-blue-600" />
-              {openDialog.action === 'add' ? 'Add' : 'Edit'} {openDialog.type?.charAt(0).toUpperCase() + openDialog.type?.slice(1)}
+              <GraduationCap className="h-6 w-6 text-blue-600" />
+              {editingStudent ? 'Edit' : 'Add'} Student
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="max-h-[70vh]">
-            <div className="space-y-4 p-1">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="flex items-center gap-2 font-medium">
-                  <Mail className="h-4 w-4 text-blue-600" />
-                  Email Address
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="Enter email address"
-                  className="bg-white/50 border-white/30 focus:bg-white/70"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="username" className="font-medium">Username</Label>
-                <Input
-                  id="username"
-                  value={form.username}
-                  onChange={(e) => setForm({ ...form, username: e.target.value })}
-                  placeholder="Enter username"
-                  className="bg-white/50 border-white/30 focus:bg-white/70"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="contact" className="flex items-center gap-2 font-medium">
-                  <Phone className="h-4 w-4 text-green-600" />
-                  Contact Number
-                </Label>
-                <Input
-                  id="contact"
-                  value={form.contact}
-                  onChange={(e) => setForm({ ...form, contact: e.target.value })}
-                  placeholder="Enter contact number"
-                  className="bg-white/50 border-white/30 focus:bg-white/70"
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="nic" className="font-medium">National ID</Label>
-                <Input
-                  id="nic"
-                  value={form.nic}
-                  onChange={(e) => setForm({ ...form, nic: e.target.value })}
-                  placeholder="Enter NIC number"
-                  className="bg-white/50 border-white/30 focus:bg-white/70"
-                />
-              </div>
-              
-              {openDialog.type === 'user' && (
+            <div className="space-y-6 p-1">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="work" className="font-medium">Occupation</Label>
+                  <Label htmlFor="firstName">First Name *</Label>
                   <Input
-                    id="work"
-                    value={form.work}
-                    onChange={(e) => setForm({ ...form, work: e.target.value })}
-                    placeholder="Enter occupation"
-                    className="bg-white/50 border-white/30 focus:bg-white/70"
+                    id="firstName"
+                    value={studentForm.firstName}
+                    onChange={(e) => setStudentForm({ ...studentForm, firstName: e.target.value })}
+                    className="bg-white/50 border-white/30"
                   />
                 </div>
-              )}
-              
-              <div className="space-y-2">
-                <Label htmlFor="address" className="flex items-center gap-2 font-medium">
-                  <MapPin className="h-4 w-4 text-purple-600" />
-                  Address
-                </Label>
-                <Textarea
-                  id="address"
-                  value={form.address}
-                  onChange={(e) => setForm({ ...form, address: e.target.value })}
-                  placeholder="Enter address"
-                  rows={3}
-                  className="bg-white/50 border-white/30 focus:bg-white/70 resize-none"
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Last Name *</Label>
+                  <Input
+                    id="lastName"
+                    value={studentForm.lastName}
+                    onChange={(e) => setStudentForm({ ...studentForm, lastName: e.target.value })}
+                    className="bg-white/50 border-white/30"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email *</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={studentForm.email}
+                    onChange={(e) => setStudentForm({ ...studentForm, email: e.target.value })}
+                    className="bg-white/50 border-white/30"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone *</Label>
+                  <Input
+                    id="phone"
+                    value={studentForm.phone}
+                    onChange={(e) => setStudentForm({ ...studentForm, phone: e.target.value })}
+                    className="bg-white/50 border-white/30"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                  <Input
+                    id="dateOfBirth"
+                    type="date"
+                    value={studentForm.dateOfBirth}
+                    onChange={(e) => setStudentForm({ ...studentForm, dateOfBirth: e.target.value })}
+                    className="bg-white/50 border-white/30"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="nic">NIC *</Label>
+                  <Input
+                    id="nic"
+                    value={studentForm.nic}
+                    onChange={(e) => setStudentForm({ ...studentForm, nic: e.target.value })}
+                    className="bg-white/50 border-white/30"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="guardianName">Guardian Name</Label>
+                  <Input
+                    id="guardianName"
+                    value={studentForm.guardianName}
+                    onChange={(e) => setStudentForm({ ...studentForm, guardianName: e.target.value })}
+                    className="bg-white/50 border-white/30"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="guardianPhone">Guardian Phone</Label>
+                  <Input
+                    id="guardianPhone"
+                    value={studentForm.guardianPhone}
+                    onChange={(e) => setStudentForm({ ...studentForm, guardianPhone: e.target.value })}
+                    className="bg-white/50 border-white/30"
+                  />
+                </div>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password" className="font-medium">
-                  Password {form.id && '(Leave blank to keep current)'}
-                </Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={form.password}
-                  onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  placeholder="Enter password"
-                  className="bg-white/50 border-white/30 focus:bg-white/70"
+                <Label htmlFor="address">Address *</Label>
+                <Textarea
+                  id="address"
+                  value={studentForm.address}
+                  onChange={(e) => setStudentForm({ ...studentForm, address: e.target.value })}
+                  className="bg-white/50 border-white/30"
+                  rows={3}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="previousEducation">Previous Education</Label>
+                  <Input
+                    id="previousEducation"
+                    value={studentForm.previousEducation}
+                    onChange={(e) => setStudentForm({ ...studentForm, previousEducation: e.target.value })}
+                    className="bg-white/50 border-white/30"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="previousInstitution">Previous Institution</Label>
+                  <Input
+                    id="previousInstitution"
+                    value={studentForm.previousInstitution}
+                    onChange={(e) => setStudentForm({ ...studentForm, previousInstitution: e.target.value })}
+                    className="bg-white/50 border-white/30"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={studentForm.status} onValueChange={(value) => setStudentForm({ ...studentForm, status: value })}>
+                  <SelectTrigger className="bg-white/50 border-white/30">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="graduated">Graduated</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Courses</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-40 overflow-y-auto">
+                  {courses.map((course) => (
+                    <div key={course._id} className="flex items-center space-x-2">
+                      <input
+                        type="checkbox"
+                        id={`course-${course._id}`}
+                        checked={studentForm.courseIds.includes(course._id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setStudentForm({
+                              ...studentForm,
+                              courseIds: [...studentForm.courseIds, course._id]
+                            });
+                          } else {
+                            setStudentForm({
+                              ...studentForm,
+                              courseIds: studentForm.courseIds.filter(id => id !== course._id)
+                            });
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`course-${course._id}`} className="text-sm">
+                        {course.title}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={studentForm.notes}
+                  onChange={(e) => setStudentForm({ ...studentForm, notes: e.target.value })}
+                  className="bg-white/50 border-white/30"
+                  rows={3}
                 />
               </div>
             </div>
           </ScrollArea>
-          <DialogFooter className="gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setOpenDialog({ type: '', action: '' })}
-              className="bg-white/50 backdrop-blur-sm"
-            >
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setStudentDialog(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={() => handleSubmit('user')}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-            >
-              {openDialog.action === 'add' ? 'Create' : 'Update'}
+            <Button onClick={handleStudentSubmit}>
+              {editingStudent ? 'Update' : 'Create'} Student
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* User Form Dialog */}
+      <Dialog open={userDialog} onOpenChange={setUserDialog}>
+        <DialogContent className="max-w-md backdrop-blur-xl bg-white/95 border border-white/20">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Users className="h-6 w-6 text-green-600" />
+              {editingUser ? 'Edit' : 'Add'} User
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username *</Label>
+              <Input
+                id="username"
+                value={userForm.username}
+                onChange={(e) => setUserForm({ ...userForm, username: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={userForm.email}
+                onChange={(e) => setUserForm({ ...userForm, email: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contact">Contact</Label>
+              <Input
+                id="contact"
+                value={userForm.contact}
+                onChange={(e) => setUserForm({ ...userForm, contact: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="nic">NIC</Label>
+              <Input
+                id="nic"
+                value={userForm.nic}
+                onChange={(e) => setUserForm({ ...userForm, nic: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="work">Work</Label>
+              <Input
+                id="work"
+                value={userForm.work}
+                onChange={(e) => setUserForm({ ...userForm, work: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Textarea
+                id="address"
+                value={userForm.address}
+                onChange={(e) => setUserForm({ ...userForm, address: e.target.value })}
+                className="bg-white/50 border-white/30"
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password {editingUser && '(Leave blank to keep current)'}</Label>
+              <Input
+                id="password"
+                type="password"
+                value={userForm.password}
+                onChange={(e) => setUserForm({ ...userForm, password: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setUserDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleUserSubmit}>
+              {editingUser ? 'Update' : 'Create'} User
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Director Form Dialog */}
+      <Dialog open={directorDialog} onOpenChange={setDirectorDialog}>
+        <DialogContent className="max-w-md backdrop-blur-xl bg-white/95 border border-white/20">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Crown className="h-6 w-6 text-purple-600" />
+              {editingDirector ? 'Edit' : 'Add'} Director
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username *</Label>
+              <Input
+                id="username"
+                value={directorForm.username}
+                onChange={(e) => setDirectorForm({ ...directorForm, username: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={directorForm.email}
+                onChange={(e) => setDirectorForm({ ...directorForm, email: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contact">Contact</Label>
+              <Input
+                id="contact"
+                value={directorForm.contact}
+                onChange={(e) => setDirectorForm({ ...directorForm, contact: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="nic">NIC</Label>
+              <Input
+                id="nic"
+                value={directorForm.nic}
+                onChange={(e) => setDirectorForm({ ...directorForm, nic: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="work">Work</Label>
+              <Input
+                id="work"
+                value={directorForm.work}
+                onChange={(e) => setDirectorForm({ ...directorForm, work: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Textarea
+                id="address"
+                value={directorForm.address}
+                onChange={(e) => setDirectorForm({ ...directorForm, address: e.target.value })}
+                className="bg-white/50 border-white/30"
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password {editingDirector && '(Leave blank to keep current)'}</Label>
+              <Input
+                id="password"
+                type="password"
+                value={directorForm.password}
+                onChange={(e) => setDirectorForm({ ...directorForm, password: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDirectorDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleDirectorSubmit}>
+              {editingDirector ? 'Update' : 'Create'} Director
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Admin Form Dialog */}
+      <Dialog open={adminDialog} onOpenChange={setAdminDialog}>
+        <DialogContent className="max-w-md backdrop-blur-xl bg-white/95 border border-white/20">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <Shield className="h-6 w-6 text-red-600" />
+              {editingAdmin ? 'Edit' : 'Add'} Admin
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="username">Username *</Label>
+              <Input
+                id="username"
+                value={adminForm.username}
+                onChange={(e) => setAdminForm({ ...adminForm, username: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={adminForm.email}
+                onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="contact">Contact</Label>
+              <Input
+                id="contact"
+                value={adminForm.contact}
+                onChange={(e) => setAdminForm({ ...adminForm, contact: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="nic">NIC</Label>
+              <Input
+                id="nic"
+                value={adminForm.nic}
+                onChange={(e) => setAdminForm({ ...adminForm, nic: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="work">Work</Label>
+              <Input
+                id="work"
+                value={adminForm.work}
+                onChange={(e) => setAdminForm({ ...adminForm, work: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="address">Address</Label>
+              <Textarea
+                id="address"
+                value={adminForm.address}
+                onChange={(e) => setAdminForm({ ...adminForm, address: e.target.value })}
+                className="bg-white/50 border-white/30"
+                rows={3}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password {editingAdmin && '(Leave blank to keep current)'}</Label>
+              <Input
+                id="password"
+                type="password"
+                value={adminForm.password}
+                onChange={(e) => setAdminForm({ ...adminForm, password: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setAdminDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAdminSubmit}>
+              {editingAdmin ? 'Update' : 'Create'} Admin
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Course Form Dialog */}
-      <Dialog 
-        open={openDialog.type === 'course'} 
-        onOpenChange={(open) => {
-          if (!open) {
-            setOpenDialog({ type: '', action: '' });
-            resetForm();
-          }
-        }}
-      >
+      <Dialog open={courseDialog} onOpenChange={setCourseDialog}>
         <DialogContent className="max-w-md backdrop-blur-xl bg-white/95 border border-white/20">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-xl">
-              <BookOpen className="h-6 w-6 text-green-600" />
-              {openDialog.action === 'add' ? 'Add' : 'Edit'} Course
+              <BookOpen className="h-6 w-6 text-indigo-600" />
+              {editingCourse ? 'Edit' : 'Add'} Course
             </DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title" className="font-medium">Course Title</Label>
+              <Label htmlFor="title">Title *</Label>
               <Input
                 id="title"
                 value={courseForm.title}
                 onChange={(e) => setCourseForm({ ...courseForm, title: e.target.value })}
-                placeholder="Enter course title"
-                className="bg-white/50 border-white/30 focus:bg-white/70"
+                className="bg-white/50 border-white/30"
               />
             </div>
-            
             <div className="space-y-2">
-              <Label htmlFor="duration" className="flex items-center gap-2 font-medium">
-                <Clock className="h-4 w-4 text-blue-600" />
-                Duration
-              </Label>
+              <Label htmlFor="duration">Duration *</Label>
               <Input
                 id="duration"
                 value={courseForm.duration}
                 onChange={(e) => setCourseForm({ ...courseForm, duration: e.target.value })}
-                placeholder="e.g., 6 months, 1 year"
-                className="bg-white/50 border-white/30 focus:bg-white/70"
+                className="bg-white/50 border-white/30"
               />
             </div>
-            
             <div className="space-y-2">
-              <Label htmlFor="description" className="font-medium">Description</Label>
+              <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
                 value={courseForm.description}
                 onChange={(e) => setCourseForm({ ...courseForm, description: e.target.value })}
-                placeholder="Enter course description"
+                className="bg-white/50 border-white/30"
                 rows={3}
-                className="bg-white/50 border-white/30 focus:bg-white/70 resize-none"
               />
             </div>
-            
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price" className="flex items-center gap-2 font-medium">
-                  <DollarSign className="h-4 w-4 text-green-600" />
-                  Price (LKR)
-                </Label>
+                <Label htmlFor="price">Price (LKR) *</Label>
                 <Input
                   id="price"
                   type="number"
                   value={courseForm.price}
-                  onChange={(e) => setCourseForm({ ...courseForm, price: +e.target.value })}
-                  placeholder="0"
-                  className="bg-white/50 border-white/30 focus:bg-white/70"
+                  onChange={(e) => setCourseForm({ ...courseForm, price: Number(e.target.value) })}
+                  className="bg-white/50 border-white/30"
                 />
               </div>
-              
               <div className="space-y-2">
-                <Label htmlFor="seats" className="flex items-center gap-2 font-medium">
-                  <Table2 className="h-4 w-4 text-purple-600" />
-                  Available Seats
-                </Label>
+                <Label htmlFor="availableSeats">Available Seats *</Label>
                 <Input
-                  id="seats"
+                  id="availableSeats"
                   type="number"
                   value={courseForm.availableSeats}
-                  onChange={(e) => setCourseForm({ ...courseForm, availableSeats: +e.target.value })}
-                  placeholder="0"
-                  className="bg-white/50 border-white/30 focus:bg-white/70"
+                  onChange={(e) => setCourseForm({ ...courseForm, availableSeats: Number(e.target.value) })}
+                  className="bg-white/50 border-white/30"
                 />
               </div>
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="instructor">Instructor</Label>
+              <Input
+                id="instructor"
+                value={courseForm.instructor}
+                onChange={(e) => setCourseForm({ ...courseForm, instructor: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Input
+                id="category"
+                value={courseForm.category}
+                onChange={(e) => setCourseForm({ ...courseForm, category: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
           </div>
-          <DialogFooter className="gap-2">
-            <Button 
-              variant="outline" 
-              onClick={() => setOpenDialog({ type: '', action: '' })}
-              className="bg-white/50 backdrop-blur-sm"
-            >
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCourseDialog(false)}>
               Cancel
             </Button>
-            <Button 
-              onClick={() => handleSubmit('course')}
-              className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700"
-            >
-              {openDialog.action === 'add' ? 'Create' : 'Update'}
+            <Button onClick={handleCourseSubmit}>
+              {editingCourse ? 'Update' : 'Create'} Course
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Contact Form Dialog */}
+      <Dialog open={contactDialog} onOpenChange={setContactDialog}>
+        <DialogContent className="max-w-md backdrop-blur-xl bg-white/95 border border-white/20">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <MessageSquare className="h-6 w-6 text-orange-600" />
+              {editingContact ? 'Edit' : 'Add'} Contact
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name *</Label>
+              <Input
+                id="name"
+                value={contactForm.name}
+                onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email *</Label>
+              <Input
+                id="email"
+                type="email"
+                value={contactForm.email}
+                onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                className="bg-white/50 border-white/30"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="message">Message *</Label>
+              <Textarea
+                id="message"
+                value={contactForm.message}
+                onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                className="bg-white/50 border-white/30"
+                rows={4}
+              />
+            </div>
+            <div className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                id="read"
+                checked={contactForm.read}
+                onChange={(e) => setContactForm({ ...contactForm, read: e.target.checked })}
+              />
+              <Label htmlFor="read">Mark as read</Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setContactDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleContactSubmit}>
+              {editingContact ? 'Update' : 'Create'} Contact
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Student Detail Dialog */}
+      <Dialog open={studentDetailDialog} onOpenChange={setStudentDetailDialog}>
+        <DialogContent className="max-w-4xl backdrop-blur-xl bg-white/95 border border-white/20 max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <GraduationCap className="h-6 w-6 text-blue-600" />
+              Student Details
+            </DialogTitle>
+          </DialogHeader>
+          {selectedStudent && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                <Avatar className="h-16 w-16 ring-4 ring-white">
+                  <AvatarImage src={`https://api.dicebear.com/7.x/initials/svg?seed=${selectedStudent.firstName}${selectedStudent.lastName}`} />
+                  <AvatarFallback className="text-lg font-semibold bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                    {getInitials(selectedStudent.fullName)}
+                  </AvatarFallback>
+                </Avatar>
+                <div>
+                  <h3 className="text-2xl font-bold">{selectedStudent.fullName}</h3>
+                  <p className="text-gray-600">{selectedStudent.studentId}</p>
+                  <Badge className={getStatusColor(selectedStudent.status)}>
+                    {getStatusIcon(selectedStudent.status)}
+                    {selectedStudent.status}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Personal Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Email:</span>
+                      <span>{selectedStudent.email}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Phone:</span>
+                      <span>{selectedStudent.phone}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>NIC:</span>
+                      <span>{selectedStudent.nic}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Age:</span>
+                      <span>{selectedStudent.age}</span>
+                    </div>
+                    <div className="pt-2">
+                      <span>Address:</span>
+                      <p className="mt-1">{selectedStudent.address}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Guardian Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span>Guardian Name:</span>
+                      <span>{selectedStudent.guardianName || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Guardian Phone:</span>
+                      <span>{selectedStudent.guardianPhone || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Enrollment Date:</span>
+                      <span>{formatDate(selectedStudent.enrollmentDate)}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Enrolled Courses</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {selectedStudent.enrolledCourses.length > 0 ? (
+                    <div className="space-y-3">
+                      {selectedStudent.enrolledCourses.map((enrollment, index) => (
+                        <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <div>
+                            <h4 className="font-medium">{enrollment.courseId.title}</h4>
+                            <p className="text-sm text-gray-600">{enrollment.courseId.duration}</p>
+                          </div>
+                          <div className="text-right">
+                            <Badge className={getStatusColor(enrollment.status)}>
+                              {enrollment.status}
+                            </Badge>
+                            <p className="text-sm text-gray-600">{enrollment.progress}% Complete</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-gray-500 text-center py-4">No courses enrolled</p>
+                  )}
+                </CardContent>
+              </Card>
+
+              {selectedStudent.notes && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Notes</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p>{selectedStudent.notes}</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Contact Detail Dialog */}
+      <Dialog open={contactDetailDialog} onOpenChange={setContactDetailDialog}>
+        <DialogContent className="max-w-2xl backdrop-blur-xl bg-white/95 border border-white/20">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-xl">
+              <MessageSquare className="h-6 w-6 text-orange-600" />
+              Contact Details
+            </DialogTitle>
+          </DialogHeader>
+          {selectedContact && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
+                  <User className="h-5 w-5 text-blue-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Name</p>
+                    <p className="font-medium">{selectedContact.name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-3 bg-green-50 rounded-lg">
+                  <Mail className="h-5 w-5 text-green-600" />
+                  <div>
+                    <p className="text-sm text-gray-600">Email</p>
+                    <p className="font-medium">{selectedContact.email}</p>
+                  </div>
+                </div>
+              </div>
+              <div>
+                <Label className="text-sm font-medium text-gray-700 mb-2 block">Message</Label>
+                <div className="p-4 bg-gray-50 rounded-lg border">
+                  <p className="text-gray-800 leading-relaxed">{selectedContact.message}</p>
+                </div>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Calendar className="h-4 w-4" />
+                  <span>Received: {formatDate(selectedContact.createdAt)}</span>
+                </div>
+                <Badge variant={selectedContact.read ? 'default' : 'secondary'}>
+                  {selectedContact.read ? 'Read' : 'Unread'}
+                </Badge>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

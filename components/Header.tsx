@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { deleteCookie } from 'cookies-next';
+import Image from 'next/image';
 
 interface HeaderProps {
   role?: string;
@@ -156,37 +157,38 @@ export default function Header({ role }: HeaderProps) {
   };
 
   return (
-    <header className="bg-white/10 backdrop-blur-sm shadow-sm sticky top-0 z-50">
+    <header className="sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 lg:h-20">
           {/* Logo and Title */}
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3 bg-blue-200/5 rounded-full backdrop-blur-sm border border-white/40">
             <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-lg">
-                <BookOpen className="w-6 h-6 text-white" />
+              <div className="w-16 h-16 flex items-center justify-center">
+                <Image
+                  src="/logo1.png"
+                  alt="EduManage Logo"
+                  width={42}
+                  height={42}
+                  className="w-16 h-16"
+                />
               </div>
               <div className="hidden sm:block">
-                <h1 className="text-xl lg:text-2xl font-bold bg-primary bg-clip-text text-transparent">
-                  EduManage
+                <h1 className="text-md lg:text-lg font-bold bg-black bg-clip-text text-transparent max-w-xs">
+                  පළාත් පාලනය පිළිබඳ ශ්‍රී ලංකා ආයතනය
                 </h1>
-                {role && (
-                  <p className="text-xs text-gray-500 font-medium">
-                    {role.charAt(0).toUpperCase() + role.slice(1)} Portal
-                  </p>
-                )}
               </div>
             </div>
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
+          <nav className="hidden lg:flex items-center space-x-8 bg-blue-200/5 rounded-full backdrop-blur-sm ">
             {navigationItems.map((item) => {
               const Icon = item.icon;
               return (
                 <button
                   key={item.label}
                   onClick={() => router.push(item.href)}
-                  className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:text-blue-600 hover:bg-blue-50 transition-all duration-200 group"
+                  className="flex items-center space-x-2 px-3 py-2 rounded-lg text-gray-600 hover:text-white hover:bg-blue-500 transition-all duration-200 group"
                 >
                   <Icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
                   <span className="font-medium">{item.label}</span>
@@ -204,7 +206,7 @@ export default function Header({ role }: HeaderProps) {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen((o) => !o)}
-                  className="flex items-center space-x-3 px-4 py-2 rounded-xl bg-primary text-white transition-all duration-200 shadow-lg hover:shadow-xl group"
+                  className="flex items-center space-x-3 px-4 py-2 rounded-full bg-primary text-white transition-all duration-200 shadow-lg hover:shadow-xl group"
                 >
                   <div className="relative">
                     {React.createElement(getRoleIcon(user.role), {
@@ -261,7 +263,7 @@ export default function Header({ role }: HeaderProps) {
                 )}
               </div>
             ) : (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-3 bg-blue-200/5 rounded-full backdrop-blur-sm border border-white/40">
                 <button
                   onClick={() => router.push('/login')}
                   className="px-4 py-2 text-gray-700 hover:text-blue-600 font-medium transition-colors"

@@ -1,46 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
-import jwt from 'jsonwebtoken';
-import connectDB from '@/lib/db';
-import { Course } from '@/models/Course';
+import dbConnect from '@/lib/db';
+import {Course} from '@/models/Course';
 
-export async function GET(req: NextRequest) {
-  await connectDB();
-  const token = req.cookies.get('token')?.value;
-  const decoded = token ? jwt.verify(token, process.env.JWT_SECRET!) as { role: string } : null;
-  const courses = await Course.find({});
-  return NextResponse.json(courses);
+export async function GET(request: NextRequest) {
+  try {
+    await dbConnect();
+    
+    const courses = await Course.find({}).sort({ createdAt: -1 });
+    return NextResponse.json(courses);
+  } catch (error) {
+    console.error('Error fetching courses:', error);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
 }
 
-export async function POST(req: NextRequest) {
-  await connectDB();
-  const token = req.cookies.get('token')?.value;
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { role: string };
-  if (!['admin', 'director'].includes(decoded.role)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  const body = await req.json();
-  const course = await Course.create(body);
-  return NextResponse.json(course);
-}
+export async function POST(request: NextRequest) {
+  try {
 
-export async function PUT(req: NextRequest) {
-  await connectDB();
-  const token = req.cookies.get('token')?.value;
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { role: string };
-  if (!['admin', 'director'].includes(decoded.role)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  const body = await req.json();
-  const course = await Course.findByIdAndUpdate(body.id, body, { new: true });
-  return NextResponse.json(course);
-}
+    await dbConnect();
 
-export async function DELETE(req: NextRequest) {
-  await connectDB();
-  const token = req.cookies.get('token')?.value;
-  if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { role: string };
-  if (!['admin', 'director'].includes(decoded.role)) return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-  const searchParams = req.nextUrl.searchParams;
-  const id = searchParams.get('id');
-  await Course.findByIdAndDelete(id);
-  return NextResponse.json({ message: 'Deleted' });
+    const body = await request.json();
+    const { title, duration, description, price, availableSeats, instructor, category } = body;
+
+    if (!title || !duration || !price || !availableSeats) {
+      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
+    }
+
+    // Check if course with same title already exists
+    const existingCourse = await Course.findOne({ title });
+    if (existingCourse) {
+      return NextResponse.json({ message: 'Course with this title already exists' }, { status: 400 });
+    }
+
+    const course = new Course({
+      title,
+      duration,
+      description,
+      price,
+      availableSeats,
+      instructor,
+      category,
+      enrolledStudents: 0
+    });
+
+    await course.save();
+    return NextResponse.json(course, { status: 201 });
+  } catch (error) {
+    console.error('Error creating course:', error);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
+  }
 }
