@@ -4,6 +4,15 @@ import dbConnect from '@/lib/mongodb';
 import Division from '@/models/Division';
 import Employee from '@/models/Employee';
 
+// Helper function to handle both sync and async params
+async function getParamsId(params: any): Promise<string> {
+  // Check if params is a Promise (new Next.js) or object (old Next.js)
+  if (params && typeof params.then === 'function') {
+    const resolvedParams = await params;
+    return resolvedParams.id;
+  }
+  return params.id;
+}
 // GET single division
 export async function GET(
   request: NextRequest,
@@ -16,8 +25,10 @@ export async function GET(
     }
 
     await dbConnect();
+    const id = await getParamsId(params);
+
     const division = await Division.findOne({
-      _id: params.id,
+      _id: id,
       director: user._id
     })
       .populate('employees', 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService')
@@ -53,10 +64,11 @@ export async function PUT(
     }
 
     await dbConnect();
+    const id = await getParamsId(params);
 
     // Check if division exists and belongs to director
     const existingDivision = await Division.findOne({
-      _id: params.id,
+      _id: id,
       director: user._id
     });
 
@@ -80,7 +92,7 @@ export async function PUT(
         _id: { $in: employees },
         director: user._id
       });
-      
+
       if (validEmployees.length !== employees.length) {
         return NextResponse.json({ error: 'Some employees do not belong to you' }, { status: 400 });
       }
@@ -126,9 +138,10 @@ export async function DELETE(
     }
 
     await dbConnect();
+    const id = await getParamsId(params);
 
     const division = await Division.findOne({
-      _id: params.id,
+      _id: id,
       director: user._id
     });
 

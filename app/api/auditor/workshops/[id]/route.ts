@@ -3,6 +3,15 @@ import dbConnect from '@/lib/mongodb';
 import Workshop from '@/models/Workshop';
 import { getCurrentUser } from '@/lib/auth';
 
+// Helper function to handle both sync and async params
+async function getParamsId(params: any): Promise<string> {
+  // Check if params is a Promise (new Next.js) or object (old Next.js)
+  if (params && typeof params.then === 'function') {
+    const resolvedParams = await params;
+    return resolvedParams.id;
+  }
+  return params.id;
+}
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -14,7 +23,9 @@ export async function GET(
     }
 
     await dbConnect();
-    const workshop = await Workshop.findById(params.id);
+    const id = await getParamsId(params);
+
+    const workshop = await Workshop.findById(id);
 
     if (!workshop) {
       return NextResponse.json({ message: 'Workshop not found' }, { status: 404 });
@@ -44,8 +55,9 @@ export async function PUT(
 
     await dbConnect();
     const updateData = await req.json();
-    
-    const workshop = await Workshop.findById(params.id);
+    const id = await getParamsId(params);
+
+    const workshop = await Workshop.findById(id);
     if (!workshop) {
       return NextResponse.json({ message: 'Workshop not found' }, { status: 404 });
     }
@@ -82,7 +94,9 @@ export async function DELETE(
     }
 
     await dbConnect();
-    const workshop = await Workshop.findById(params.id);
+    const id = await getParamsId(params);
+
+    const workshop = await Workshop.findById(id);
 
     if (!workshop) {
       return NextResponse.json({ message: 'Workshop not found' }, { status: 404 });

@@ -3,19 +3,24 @@ import { getCurrentUser } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Division from '@/models/Division';
 
+// Helper function to handle both sync and async params
+async function getParamsId(params: any): Promise<string> {
+  // Check if params is a Promise (new Next.js) or object (old Next.js)
+  if (params && typeof params.then === 'function') {
+    const resolvedParams = await params;
+    return resolvedParams.id;
+  }
+  return params.id;
+}
 // REMOVE employee from division
-export async function POST(request: NextRequest) {
+export async function POST(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const user = await getCurrentUser();
     if (!user || user.role !== 'director') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get division ID from URL search parameters
-    const divisionId = request.nextUrl.searchParams.get('id');
-    
-    if (!divisionId) {
-      return NextResponse.json({ error: 'Division ID is required' }, { status: 400 });
     }
 
     const { employeeId } = await request.json();
@@ -26,9 +31,11 @@ export async function POST(request: NextRequest) {
 
     await dbConnect();
 
+        const id = await getParamsId(params);
+
     // Check if division exists and belongs to director
     const division = await Division.findOne({
-      _id: divisionId,
+      _id: id,
       director: user._id
     });
 
@@ -38,7 +45,7 @@ export async function POST(request: NextRequest) {
 
     // Remove employee from division
     await Division.findByIdAndUpdate(
-      divisionId,
+      params.id,
       { 
         $pull: { employees: employeeId },
         $unset: {
@@ -48,7 +55,7 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    const updatedDivision = await Division.findById(divisionId)
+    const updatedDivision = await Division.findById(params.id)
       .populate('employees', 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService')
       .populate('headProgramOfficer', 'name email profilePicture')
       .populate('subProgramOfficer', 'name email profilePicture');

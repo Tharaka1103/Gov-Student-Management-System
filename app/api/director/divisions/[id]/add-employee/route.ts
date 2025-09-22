@@ -4,6 +4,15 @@ import dbConnect from '@/lib/mongodb';
 import Division from '@/models/Division';
 import Employee from '@/models/Employee';
 
+// Helper function to handle both sync and async params
+async function getParamsId(params: any): Promise<string> {
+  // Check if params is a Promise (new Next.js) or object (old Next.js)
+  if (params && typeof params.then === 'function') {
+    const resolvedParams = await params;
+    return resolvedParams.id;
+  }
+  return params.id;
+}
 // ADD employee to division
 export async function POST(
   request: NextRequest,
@@ -22,10 +31,11 @@ export async function POST(
     }
 
     await dbConnect();
+    const id = await getParamsId(params);
 
     // Check if division exists and belongs to director
     const division = await Division.findOne({
-      _id: params.id,
+      _id: id,
       director: user._id
     });
 

@@ -4,10 +4,20 @@ import dbConnect from '@/lib/mongodb';
 import Employee from '@/models/Employee';
 import { uploadProfilePicture, validateImageFile } from '@/lib/upload';
 
+// Helper function to handle both sync and async params
+async function getParamsId(params: any): Promise<string> {
+  // Check if params is a Promise (new Next.js) or object (old Next.js)
+  if (params && typeof params.then === 'function') {
+    const resolvedParams = await params;
+    return resolvedParams.id;
+  }
+  return params.id;
+}
+
 // GET individual employee
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const user = await getCurrentUser();
@@ -15,9 +25,11 @@ export async function GET(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const id = await getParamsId(params);
+
     await dbConnect();
     const employee = await Employee.findOne({
-      _id: params.id,
+      _id: id,
       director: user._id
     });
 
@@ -35,13 +47,15 @@ export async function GET(
 // UPDATE employee
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const user = await getCurrentUser();
     if (!user || user.role !== 'director') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    const id = await getParamsId(params);
 
     await dbConnect();
 
@@ -63,7 +77,7 @@ export async function PUT(
 
     // Check if employee exists and belongs to this director
     const existingEmployee = await Employee.findOne({
-      _id: params.id,
+      _id: id,
       director: user._id
     });
 
@@ -74,7 +88,7 @@ export async function PUT(
     // Check for unique constraints (excluding current employee)
     const emailExists = await Employee.findOne({
       email: email.toLowerCase(),
-      _id: { $ne: params.id }
+      _id: { $ne: id }
     });
     if (emailExists) {
       return NextResponse.json({ error: 'Email already exists' }, { status: 400 });
@@ -82,7 +96,7 @@ export async function PUT(
 
     const nicExists = await Employee.findOne({
       nic,
-      _id: { $ne: params.id }
+      _id: { $ne: id }
     });
     if (nicExists) {
       return NextResponse.json({ error: 'NIC already exists' }, { status: 400 });
@@ -96,11 +110,11 @@ export async function PUT(
       if (!validation.valid) {
         return NextResponse.json({ error: validation.error }, { status: 400 });
       }
-      profilePictureUrl = await uploadProfilePicture(profilePicture, params.id);
+      profilePictureUrl = await uploadProfilePicture(profilePicture, id);
     }
 
     const updatedEmployee = await Employee.findByIdAndUpdate(
-      params.id,
+      id,
       {
         name: name.trim(),
         email: email.toLowerCase().trim(),
@@ -126,7 +140,7 @@ export async function PUT(
 // DELETE employee
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const user = await getCurrentUser();
@@ -134,10 +148,12 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const id = await getParamsId(params);
+
     await dbConnect();
 
     const employee = await Employee.findOne({
-      _id: params.id,
+      _id: id,
       director: user._id
     });
 
@@ -145,7 +161,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
     }
 
-    await Employee.findByIdAndDelete(params.id);
+    await Employee.findByIdAndDelete(id);
 
     return NextResponse.json({ message: 'Employee deleted successfully' });
   } catch (error) {
