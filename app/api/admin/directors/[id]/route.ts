@@ -5,29 +5,21 @@ import { getCurrentUser } from '@/lib/auth';
 import { uploadProfilePicture, validateImageFile } from '@/lib/upload';
 
 // GET specific director
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser || currentUser.role !== 'admin') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get director ID from URL search parameters
-    const directorId = request.nextUrl.searchParams.get('id');
-    
-    if (!directorId) {
-      return NextResponse.json({ message: 'Director ID is required' }, { status: 400 });
-    }
-
     await dbConnect();
-    const director = await User.findById(directorId)
+    const director = await User.findById(params.id)
       .select('-password')
       .populate('employees', 'name email department')
       .lean();
-
-    if (!director) {
-      return NextResponse.json({ message: 'Director not found' }, { status: 404 });
-    }
 
     return NextResponse.json({ director });
   } catch (error) {
@@ -40,18 +32,14 @@ export async function GET(request: NextRequest) {
 }
 
 // UPDATE director
-export async function PUT(request: NextRequest) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser || currentUser.role !== 'admin') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get director ID from URL search parameters
-    const directorId = request.nextUrl.searchParams.get('id');
-    
-    if (!directorId) {
-      return NextResponse.json({ message: 'Director ID is required' }, { status: 400 });
     }
 
     await dbConnect();
@@ -67,7 +55,7 @@ export async function PUT(request: NextRequest) {
     const profilePictureFile = formData.get('profilePicture') as File;
 
     // Check if director exists
-    const existingDirector = await User.findById(directorId);
+    const existingDirector = await User.findById(params.id);
     if (!existingDirector || existingDirector.role !== 'director') {
       return NextResponse.json({ message: 'Director not found' }, { status: 404 });
     }
@@ -75,7 +63,7 @@ export async function PUT(request: NextRequest) {
     // Check for duplicate email/nic (excluding current director)
     const duplicate = await User.findOne({
       $and: [
-        { _id: { $ne: directorId } },
+        { _id: { $ne: params.id } },
         { $or: [{ email }, { nic }] }
       ]
     });
@@ -97,12 +85,12 @@ export async function PUT(request: NextRequest) {
           { status: 400 }
         );
       }
-      profilePicture = await uploadProfilePicture(profilePictureFile, directorId);
+      profilePicture = await uploadProfilePicture(profilePictureFile, params.id);
     }
 
     // Update director
     const updatedDirector = await User.findByIdAndUpdate(
-      directorId,
+      params.id,
       {
         name,
         email,
@@ -131,28 +119,24 @@ export async function PUT(request: NextRequest) {
 }
 
 // DELETE director
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser || currentUser.role !== 'admin') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get director ID from URL search parameters
-    const directorId = request.nextUrl.searchParams.get('id');
-    
-    if (!directorId) {
-      return NextResponse.json({ message: 'Director ID is required' }, { status: 400 });
-    }
-
     await dbConnect();
 
-    const director = await User.findById(directorId);
+    const director = await User.findById(params.id);
     if (!director || director.role !== 'director') {
       return NextResponse.json({ message: 'Director not found' }, { status: 404 });
     }
 
-    await User.findByIdAndDelete(directorId);
+    await User.findByIdAndDelete(params.id);
 
     return NextResponse.json({
       message: 'Director deleted successfully'
