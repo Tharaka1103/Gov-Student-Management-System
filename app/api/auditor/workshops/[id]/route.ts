@@ -12,9 +12,10 @@ async function getParamsId(params: any): Promise<string> {
   }
   return params.id;
 }
+
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any } // Changed from { params: { id: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -22,8 +23,8 @@ export async function GET(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
     const id = await getParamsId(params);
+    await dbConnect();
 
     const workshop = await Workshop.findById(id);
 
@@ -45,7 +46,7 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any } // Changed from { params: { id: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -53,9 +54,10 @@ export async function PUT(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
-    const updateData = await req.json();
     const id = await getParamsId(params);
+    await dbConnect();
+    
+    const updateData = await req.json();
 
     const workshop = await Workshop.findById(id);
     if (!workshop) {
@@ -68,7 +70,7 @@ export async function PUT(
     }
 
     const updatedWorkshop = await Workshop.findByIdAndUpdate(
-      params.id,
+      id, // Fixed: was using params.id instead of id
       updateData,
       { new: true }
     );
@@ -85,7 +87,7 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any } // Changed from { params: { id: string } }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -93,8 +95,8 @@ export async function DELETE(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    await dbConnect();
     const id = await getParamsId(params);
+    await dbConnect();
 
     const workshop = await Workshop.findById(id);
 
@@ -107,7 +109,7 @@ export async function DELETE(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    await Workshop.findByIdAndDelete(params.id);
+    await Workshop.findByIdAndDelete(id); // Fixed: was using params.id instead of id
 
     return NextResponse.json({ message: 'Workshop deleted successfully' });
   } catch (error) {
