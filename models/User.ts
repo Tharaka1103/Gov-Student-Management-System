@@ -1,14 +1,106 @@
-import { Schema, model, models } from 'mongoose';
+import mongoose from 'mongoose';
+import bcrypt from 'bcryptjs';
 
-const userSchema = new Schema({
-  email: { type: String, unique: true, required: true },
-  username: { type: String, required: true },
-  contact: { type: String },
-  nic: { type: String },
-  work: { type: String },
-  address: { type: String },
-  password: { type: String, required: true },
-  role: { type: String, enum: ['admin', 'director', 'user'], required: true },
-}, { timestamps: true });
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+  },
+  nic: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
+  mobile: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  address: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 6
+  },
+  role: {
+    type: String,
+    enum: ['admin', 'director', 'internal_auditor'],
+    required: true
+  },
+  profilePicture: {
+    type: String,
+    default: null
+  },
+  isActive: {
+    type: Boolean,
+    default: true
+  },
+  // Role-specific fields
+  managingDepartments: [{
+    type: String,
+    trim: true
+  }],
+  workshops: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Workshop'
+  }],
+  employees: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Employee'
+  }],
+  permissions: [{
+    type: String
+  }]
+}, {
+  timestamps: true
+});
 
-export const User = models.User || model('User', userSchema);
+// Hash password before saving
+userSchema.pre('save', async function(next) {
+  if (!this.isModified('password')) return next();
+  
+  try {
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
+  } catch (error) {
+    next(error as Error);
+  }
+});
+
+// Compare password method
+userSchema.methods.comparePassword = async function(candidatePassword: string): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password);
+};
+
+// Generate auto password
+userSchema.statics.generateAutoPassword = function(name: string): string {
+  const cleanName = name.toLowerCase().replace(/\s+/g, '');
+  return `${cleanName}1234`;
+};
+
+// Fix for the mongoose models issue
+let User: mongoose.Model<any>;
+
+try {
+  // Try to get existing model
+  User = mongoose.model('User');
+} catch (error) {
+  // Create new model if it doesn't exist
+  User = mongoose.model('User', userSchema);
+}
+
+export default User;
