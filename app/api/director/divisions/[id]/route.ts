@@ -16,7 +16,7 @@ async function getParamsId(params: any): Promise<string> {
 // GET single division
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const user = await getCurrentUser();
@@ -49,7 +49,7 @@ export async function GET(
 // UPDATE division
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const user = await getCurrentUser();
@@ -129,7 +129,7 @@ export async function PUT(
 // DELETE division
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const user = await getCurrentUser();

@@ -15,7 +15,7 @@ async function getParamsId(params: any): Promise<string> {
 // REMOVE employee from division
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const user = await getCurrentUser();
