@@ -16,7 +16,7 @@ async function getParamsId(params: any): Promise<string> {
 // ADD employee to division
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const user = await getCurrentUser();
