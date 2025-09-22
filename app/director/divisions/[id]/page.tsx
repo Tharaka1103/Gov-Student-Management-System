@@ -156,8 +156,17 @@ export default function DivisionDetailPage({ params }: DivisionDetailPageProps) 
     return officer as Employee;
   };
 
+  // Helper function to get officer ID (whether it's a string or object)
+  const getOfficerId = (officer: string | Employee | null | undefined): string | null => {
+    if (!officer) return null;
+    if (typeof officer === 'string') return officer;
+    return (officer as Employee)._id;
+  };
+
   const headOfficer = getOfficerDetails(division.headProgramOfficer);
   const subOfficer = getOfficerDetails(division.subProgramOfficer);
+  const headOfficerId = getOfficerId(division.headProgramOfficer);
+  const subOfficerId = getOfficerId(division.subProgramOfficer);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -339,10 +348,10 @@ export default function DivisionDetailPage({ params }: DivisionDetailPageProps) 
                             <p className="font-medium text-gray-900 truncate text-sm">{employee.name}</p>
                             <p className="text-xs text-gray-600 truncate">{employee.email}</p>
                             <div className="flex items-center space-x-1 mt-1">
-                              {employee._id === division.headProgramOfficer?._id && (
+                              {employee._id === headOfficerId && (
                                 <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded">Head</span>
                               )}
-                              {employee._id === division.subProgramOfficer?._id && (
+                              {employee._id === subOfficerId && (
                                 <span className="px-2 py-0.5 bg-purple-100 text-purple-700 text-xs rounded">Sub</span>
                               )}
                               <span className={`px-2 py-0.5 text-xs rounded ${
