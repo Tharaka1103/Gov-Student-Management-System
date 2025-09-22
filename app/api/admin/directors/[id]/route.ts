@@ -4,10 +4,20 @@ import User from '@/models/User';
 import { getCurrentUser } from '@/lib/auth';
 import { uploadProfilePicture, validateImageFile } from '@/lib/upload';
 
+// Helper function to handle both sync and async params
+async function getParamsId(params: any): Promise<string> {
+  // Check if params is a Promise (new Next.js) or object (old Next.js)
+  if (params && typeof params.then === 'function') {
+    const resolvedParams = await params;
+    return resolvedParams.id;
+  }
+  return params.id;
+}
+
 // GET specific director
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -15,11 +25,17 @@ export async function GET(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
+    const id = await getParamsId(params);
+
     await dbConnect();
-    const director = await User.findById(params.id)
+    
+    const director = await User.findById(id)
       .select('-password')
-      .populate('employees', 'name email department')
       .lean();
+
+    if (!director) {
+      return NextResponse.json({ message: 'Director not found' }, { status: 404 });
+    }
 
     return NextResponse.json({ director });
   } catch (error) {
@@ -34,13 +50,15 @@ export async function GET(
 // UPDATE director
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser || currentUser.role !== 'admin') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
+
+    const id = await getParamsId(params);
 
     await dbConnect();
 
@@ -55,7 +73,7 @@ export async function PUT(
     const profilePictureFile = formData.get('profilePicture') as File;
 
     // Check if director exists
-    const existingDirector = await User.findById(params.id);
+    const existingDirector = await User.findById(id);
     if (!existingDirector || existingDirector.role !== 'director') {
       return NextResponse.json({ message: 'Director not found' }, { status: 404 });
     }
@@ -63,7 +81,7 @@ export async function PUT(
     // Check for duplicate email/nic (excluding current director)
     const duplicate = await User.findOne({
       $and: [
-        { _id: { $ne: params.id } },
+        { _id: { $ne: id } },
         { $or: [{ email }, { nic }] }
       ]
     });
@@ -85,12 +103,12 @@ export async function PUT(
           { status: 400 }
         );
       }
-      profilePicture = await uploadProfilePicture(profilePictureFile, params.id);
+      profilePicture = await uploadProfilePicture(profilePictureFile, id);
     }
 
     // Update director
     const updatedDirector = await User.findByIdAndUpdate(
-      params.id,
+      id,
       {
         name,
         email,
@@ -121,7 +139,7 @@ export async function PUT(
 // DELETE director
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: any }
 ) {
   try {
     const currentUser = await getCurrentUser();
@@ -129,14 +147,16 @@ export async function DELETE(
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
+    const id = await getParamsId(params);
+
     await dbConnect();
 
-    const director = await User.findById(params.id);
+    const director = await User.findById(id);
     if (!director || director.role !== 'director') {
       return NextResponse.json({ message: 'Director not found' }, { status: 404 });
     }
 
-    await User.findByIdAndDelete(params.id);
+    await User.findByIdAndDelete(id);
 
     return NextResponse.json({
       message: 'Director deleted successfully'

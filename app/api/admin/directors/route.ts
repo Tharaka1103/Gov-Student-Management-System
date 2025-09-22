@@ -3,6 +3,7 @@ import dbConnect from '@/lib/mongodb';
 import User from '@/models/User';
 import { getCurrentUser } from '@/lib/auth';
 import { uploadProfilePicture, validateImageFile } from '@/lib/upload';
+import bcrypt from 'bcryptjs';
 
 export async function GET(req: NextRequest) {
   try {
@@ -33,25 +34,19 @@ export async function POST(req: NextRequest) {
     await dbConnect();
     const formData = await req.formData();
     
-    const directorData = {
-      name: formData.get('name') as string,
-      email: formData.get('email') as string,
-      nic: formData.get('nic') as string,
-      mobile: formData.get('mobile') as string,
-      address: formData.get('address') as string,
-      role: 'director' as const,
-      managingDepartments: JSON.parse(formData.get('managingDepartments') as string),
-    };
-
-    // Auto-generate password
-    const autoPassword = User.generateAutoPassword(directorData.name);
-    directorData.password = autoPassword;
+    const name = formData.get('name') as string;
+    const email = formData.get('email') as string;
+    const nic = formData.get('nic') as string;
+    const mobile = formData.get('mobile') as string;
+    const address = formData.get('address') as string;
+    const password = formData.get('password') as string;
+    const managingDepartments = JSON.parse(formData.get('managingDepartments') as string);
 
     // Check if user already exists
     const existingUser = await User.findOne({
       $or: [
-        { email: directorData.email.toLowerCase() },
-        { nic: directorData.nic }
+        { email: email.toLowerCase() },
+        { nic: nic }
       ]
     });
 
@@ -76,10 +71,20 @@ export async function POST(req: NextRequest) {
       profilePicturePath = await uploadProfilePicture(profilePictureFile, tempUserId);
     }
 
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
     const director = new User({
-      ...directorData,
-      email: directorData.email.toLowerCase(),
-      profilePicture: profilePicturePath
+      name,
+      email: email.toLowerCase(),
+      nic,
+      mobile,
+      address,
+      password: hashedPassword,
+      role: 'director',
+      managingDepartments,
+      profilePicture: profilePicturePath,
+      isActive: true
     });
 
     await director.save();
@@ -90,7 +95,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       message: 'Director created successfully',
       director: directorResponse,
-      generatedPassword: autoPassword
+      generatedPassword: password
     }, { status: 201 });
 
   } catch (error: any) {

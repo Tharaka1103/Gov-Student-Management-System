@@ -3,22 +3,18 @@ import dbConnect from '@/lib/mongodb';
 import Workshop from '@/models/Workshop';
 import { getCurrentUser } from '@/lib/auth';
 
-export async function GET(req: NextRequest) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser || currentUser.role !== 'internal_auditor') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get workshop ID from URL search parameters
-    const workshopId = req.nextUrl.searchParams.get('id');
-    
-    if (!workshopId) {
-      return NextResponse.json({ message: 'Workshop ID is required' }, { status: 400 });
-    }
-
     await dbConnect();
-    const workshop = await Workshop.findById(workshopId);
+    const workshop = await Workshop.findById(params.id);
 
     if (!workshop) {
       return NextResponse.json({ message: 'Workshop not found' }, { status: 404 });
@@ -36,24 +32,20 @@ export async function GET(req: NextRequest) {
   }
 }
 
-export async function PUT(req: NextRequest) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser || currentUser.role !== 'internal_auditor') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get workshop ID from URL search parameters
-    const workshopId = req.nextUrl.searchParams.get('id');
-    
-    if (!workshopId) {
-      return NextResponse.json({ message: 'Workshop ID is required' }, { status: 400 });
-    }
-
     await dbConnect();
     const updateData = await req.json();
     
-    const workshop = await Workshop.findById(workshopId);
+    const workshop = await Workshop.findById(params.id);
     if (!workshop) {
       return NextResponse.json({ message: 'Workshop not found' }, { status: 404 });
     }
@@ -64,7 +56,7 @@ export async function PUT(req: NextRequest) {
     }
 
     const updatedWorkshop = await Workshop.findByIdAndUpdate(
-      workshopId,
+      params.id,
       updateData,
       { new: true }
     );
@@ -79,22 +71,18 @@ export async function PUT(req: NextRequest) {
   }
 }
 
-export async function DELETE(req: NextRequest) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const currentUser = await getCurrentUser();
     if (!currentUser || currentUser.role !== 'internal_auditor') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get workshop ID from URL search parameters
-    const workshopId = req.nextUrl.searchParams.get('id');
-    
-    if (!workshopId) {
-      return NextResponse.json({ message: 'Workshop ID is required' }, { status: 400 });
-    }
-
     await dbConnect();
-    const workshop = await Workshop.findById(workshopId);
+    const workshop = await Workshop.findById(params.id);
 
     if (!workshop) {
       return NextResponse.json({ message: 'Workshop not found' }, { status: 404 });
@@ -105,7 +93,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
-    await Workshop.findByIdAndDelete(workshopId);
+    await Workshop.findByIdAndDelete(params.id);
 
     return NextResponse.json({ message: 'Workshop deleted successfully' });
   } catch (error) {

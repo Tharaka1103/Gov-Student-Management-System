@@ -160,7 +160,7 @@ export default function EditDirectorPage() {
         } else if (key === 'profilePicture' && value) {
           submitData.append(key, value as File);
         } else if (key === 'isActive') {
-          submitData.append(key, value.toString());
+          submitData.append(key, value as string);
         } else if (key !== 'profilePicture') {
           submitData.append(key, value as string);
         }

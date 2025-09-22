@@ -5,23 +5,19 @@ import Division from '@/models/Division';
 import Employee from '@/models/Employee';
 
 // GET single division
-export async function GET(request: NextRequest) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const user = await getCurrentUser();
     if (!user || user.role !== 'director') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get division ID from URL search parameters
-    const divisionId = request.nextUrl.searchParams.get('id');
-    
-    if (!divisionId) {
-      return NextResponse.json({ error: 'Division ID is required' }, { status: 400 });
-    }
-
     await dbConnect();
     const division = await Division.findOne({
-      _id: divisionId,
+      _id: params.id,
       director: user._id
     })
       .populate('employees', 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService')
@@ -40,18 +36,14 @@ export async function GET(request: NextRequest) {
 }
 
 // UPDATE division
-export async function PUT(request: NextRequest) {
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const user = await getCurrentUser();
     if (!user || user.role !== 'director') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    // Get division ID from URL search parameters
-    const divisionId = request.nextUrl.searchParams.get('id');
-    
-    if (!divisionId) {
-      return NextResponse.json({ error: 'Division ID is required' }, { status: 400 });
     }
 
     const { name, description, employees, headProgramOfficer, subProgramOfficer } = await request.json();
@@ -64,7 +56,7 @@ export async function PUT(request: NextRequest) {
 
     // Check if division exists and belongs to director
     const existingDivision = await Division.findOne({
-      _id: divisionId,
+      _id: params.id,
       director: user._id
     });
 
@@ -75,7 +67,7 @@ export async function PUT(request: NextRequest) {
     // Check if name is unique (excluding current division)
     const nameExists = await Division.findOne({
       name: name.trim(),
-      _id: { $ne: divisionId }
+      _id: { $ne: params.id }
     });
 
     if (nameExists) {
@@ -95,13 +87,13 @@ export async function PUT(request: NextRequest) {
 
       // Remove employees from other divisions (excluding current division)
       await Division.updateMany(
-        { director: user._id, _id: { $ne: divisionId } },
+        { director: user._id, _id: { $ne: params.id } },
         { $pull: { employees: { $in: employees } } }
       );
     }
 
     const updatedDivision = await Division.findByIdAndUpdate(
-      divisionId,
+      params.id,
       {
         name: name.trim(),
         description: description?.trim(),
@@ -123,24 +115,20 @@ export async function PUT(request: NextRequest) {
 }
 
 // DELETE division
-export async function DELETE(request: NextRequest) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const user = await getCurrentUser();
     if (!user || user.role !== 'director') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get division ID from URL search parameters
-    const divisionId = request.nextUrl.searchParams.get('id');
-    
-    if (!divisionId) {
-      return NextResponse.json({ error: 'Division ID is required' }, { status: 400 });
-    }
-
     await dbConnect();
 
     const division = await Division.findOne({
-      _id: divisionId,
+      _id: params.id,
       director: user._id
     });
 
@@ -148,7 +136,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: 'Division not found' }, { status: 404 });
     }
 
-    await Division.findByIdAndDelete(divisionId);
+    await Division.findByIdAndDelete(params.id);
 
     return NextResponse.json({ message: 'Division deleted successfully' });
   } catch (error) {

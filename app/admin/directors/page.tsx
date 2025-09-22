@@ -128,44 +128,6 @@ export default function DirectorsPage() {
 
   const stats = getDirectorStats();
 
-  // Define stats array with unique keys
-  const statsData = [
-    {
-      key: 'total-directors',
-      value: stats.total,
-      label: 'Total Directors',
-      color: 'bg-blue-200',
-      textColor: 'text-blue-600'
-    },
-    {
-      key: 'active-directors',
-      value: stats.active,
-      label: 'Active',
-      color: 'bg-green-200',
-      textColor: 'text-green-600'
-    },
-    {
-      key: 'inactive-directors',
-      value: stats.inactive,
-      label: 'Inactive',
-      color: 'bg-red-200',
-      textColor: 'text-red-600'
-    },
-    {
-      key: 'total-departments',
-      value: stats.totalDepartments,
-      label: 'Departments',
-      color: 'bg-purple-200',
-      textColor: 'text-purple-600'
-    }
-  ];
-
-  // Loading skeleton data with unique keys
-  const loadingSkeletonItems = Array.from({ length: 8 }, (_, index) => ({
-    key: `skeleton-${index}`,
-    id: index
-  }));
-
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader user={user} />
@@ -196,18 +158,32 @@ export default function DirectorsPage() {
           </div>
         </div>
 
-        {/* Stats Cards - Fixed with proper keys */}
+        {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          {statsData.map((stat) => (
-            <Card key={stat.key} className={stat.color}>
-              <CardContent className="p-4">
-                <div className={`text-xl font-bold ${stat.textColor}`}>
-                  {stat.value}
-                </div>
-                <p className="text-xs text-gray-600">{stat.label}</p>
-              </CardContent>
-            </Card>
-          ))}
+          <Card className='bg-blue-200'>
+            <CardContent className="p-4">
+              <div className="text-xl font-bold text-blue-600">{stats.total}</div>
+              <p className="text-xs text-gray-600">Total Directors</p>
+            </CardContent>
+          </Card>
+          <Card className='bg-green-200'>
+            <CardContent className="p-4">
+              <div className="text-xl font-bold text-green-600">{stats.active}</div>
+              <p className="text-xs text-gray-600">Active</p>
+            </CardContent>
+          </Card>
+          <Card  className='bg-red-200'>
+            <CardContent className="p-4">
+              <div className="text-xl font-bold text-red-600">{stats.inactive}</div>
+              <p className="text-xs text-gray-600">Inactive</p>
+            </CardContent>
+          </Card>
+          <Card className='bg-purple-200'>
+            <CardContent className="p-4">
+              <div className="text-xl font-bold text-purple-600">{stats.totalDepartments}</div>
+              <p className="text-xs text-gray-600">Departments</p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Search */}
@@ -228,8 +204,8 @@ export default function DirectorsPage() {
         {/* Directors Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {loadingSkeletonItems.map((item) => (
-              <Card key={item.key}>
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+              <Card key={i}>
                 <CardContent className="p-4">
                   <div className="animate-pulse">
                     <div className="h-12 w-12 bg-gray-300 rounded-full mb-3 mx-auto"></div>
