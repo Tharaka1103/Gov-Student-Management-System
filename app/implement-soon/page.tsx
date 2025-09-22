@@ -16,13 +16,11 @@ import {
 } from 'lucide-react';
 import { User } from '@/types';
 import Link from 'next/link';
-import { useSearchParams } from 'next/navigation';
 
 export default function ComingSoonPage() {
   const [user, setUser] = useState<User | null>(null);
-  const searchParams = useSearchParams();
-  const featureName = searchParams.get('feature') || 'This feature';
-  const backUrl = searchParams.get('back') || '/admin/directors';
+  const featureName = 'This feature';
+  const backUrl = '/admin/dashboard';
 
   useEffect(() => {
     fetchUserData();
