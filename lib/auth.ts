@@ -117,3 +117,4 @@ export const requireAuth = (allowedRoles?: string[]) => {
     return { authorized: true, user: payload };
   };
 };
+

@@ -57,6 +57,30 @@ export default function DirectorDetailsModal({
 
   if (!director) return null;
 
+  // Safe function to get initials
+  const getInitials = (name: string | undefined | null): string => {
+    if (!name || typeof name !== 'string') return 'U'; // Default to 'U' for Unknown
+    return name.split(' ')
+      .map(n => n.trim())
+      .filter(n => n.length > 0)
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2); // Limit to 2 characters
+  };
+
+  // Safe function to get unique departments with proper keys
+  const getDepartmentsWithKeys = (departments: string[] | undefined | null) => {
+    if (!departments || !Array.isArray(departments)) return [];
+    
+    return departments
+      .filter(dept => dept && typeof dept === 'string' && dept.trim().length > 0)
+      .map((dept, index) => ({
+        id: `dept-${director._id}-${index}-${dept.replace(/\s+/g, '-').toLowerCase()}`,
+        name: dept.trim()
+      }));
+  };
+
   const handleDelete = async () => {
     setIsDeleting(true);
     try {
@@ -79,6 +103,54 @@ export default function DirectorDetailsModal({
     }
   };
 
+
+  // Contact information items with unique keys
+  const contactItems = [
+    {
+      id: `contact-email-${director._id}`,
+      icon: Mail,
+      iconColor: 'text-red-900',
+      value: director.email || 'Not provided'
+    },
+    {
+      id: `contact-mobile-${director._id}`,
+      icon: Phone,
+      iconColor: 'text-green-500',
+      value: director.mobile || 'Not provided'
+    },
+    {
+      id: `contact-nic-${director._id}`,
+      icon: IdCard,
+      iconColor: 'text-purple-500',
+      value: director.nic || 'Not provided'
+    },
+    {
+      id: `contact-address-${director._id}`,
+      icon: MapPin,
+      iconColor: 'text-red-500',
+      value: director.address || 'Not provided',
+      isAddress: true
+    }
+  ];
+
+  // Account information items with unique keys
+  const accountItems = [
+    {
+      id: `account-created-${director._id}`,
+      icon: Calendar,
+      iconColor: 'text-red-900',
+      label: 'Created',
+      value: director.createdAt ? new Date(director.createdAt).toLocaleDateString() : 'Unknown'
+    },
+    {
+      id: `account-updated-${director._id}`,
+      icon: Calendar,
+      iconColor: 'text-green-500',
+      label: 'Last Updated',
+      value: director.updatedAt ? new Date(director.updatedAt).toLocaleDateString() : 'Unknown'
+    }
+  ];
+
   return (
     <>
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -95,20 +167,20 @@ export default function DirectorDetailsModal({
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
                   <Avatar className="w-20 h-20">
-                    <AvatarImage src={director.profilePicture || ''} alt={director.name} />
-                    <AvatarFallback className="bg-blue-500 text-white text-lg">
-                      {director.name.split(' ').map(n => n[0]).join('')}
+                    <AvatarImage src={director.profilePicture || ''} alt={director.name || 'Director'} />
+                    <AvatarFallback className="bg-red-900 text-white text-lg">
+                      {getInitials(director.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <h2 className="text-xl font-bold text-gray-900">{director.name}</h2>
+                    <h2 className="text-xl font-bold text-gray-900">{director.name || 'Unknown Director'}</h2>
                     <p className="text-gray-600">Director</p>
                     <div className="flex items-center space-x-2 mt-2">
-                      <Badge variant={director.isActive ? "default" : "secondary"}>
+                      <Badge 
+                        key={`status-badge-${director._id}`}
+                        variant={director.isActive ? "default" : "secondary"}
+                      >
                         {director.isActive ? 'Active' : 'Inactive'}
-                      </Badge>
-                      <Badge variant="outline">
-                        {director.managingDepartments?.length || 0} Departments
                       </Badge>
                     </div>
                   </div>
@@ -122,66 +194,41 @@ export default function DirectorDetailsModal({
                 <CardTitle className="text-lg">Contact Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <Mail className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm">{director.email}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Phone className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">{director.mobile}</span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <IdCard className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm">{director.nic}</span>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <MapPin className="w-4 h-4 text-red-500 mt-0.5" />
-                  <span className="text-sm">{director.address}</span>
-                </div>
+                {contactItems.map((item) => {
+                  const IconComponent = item.icon;
+                  return (
+                    <div key={item.id} className="flex items-start space-x-3">
+                      <IconComponent className={`w-4 h-4 ${item.iconColor} ${item.isAddress ? 'mt-0.5' : ''}`} />
+                      <span className="text-sm">{item.value}</span>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
-
-            {/* Managing Departments */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Managing Departments</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex flex-wrap gap-2">
-                  {director.managingDepartments?.map((dept, index) => (
-                    <Badge key={index} variant="outline" className="text-sm">
-                      {dept}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Timestamps */}
+            {/* Account Information */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">Account Information</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="flex items-center space-x-3">
-                  <Calendar className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm">
-                    Created: {new Date(director.createdAt).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex items-center space-x-3">
-                  <Calendar className="w-4 h-4 text-green-500" />
-                  <span className="text-sm">
-                    Last Updated: {new Date(director.updatedAt).toLocaleDateString()}
-                  </span>
-                </div>
+                {accountItems.map((item) => {
+                  const IconComponent = item.icon;
+                  return (
+                    <div key={item.id} className="flex items-center space-x-3">
+                      <IconComponent className={`w-4 h-4 ${item.iconColor}`} />
+                      <span className="text-sm">
+                        {item.label}: {item.value}
+                      </span>
+                    </div>
+                  );
+                })}
               </CardContent>
             </Card>
 
             {/* Action Buttons */}
             <div className="flex space-x-3">
               <Link href={`/admin/directors/${director._id}/edit`} className="flex-1">
-                <Button className="w-full bg-blue-500 hover:bg-blue-600">
+                <Button className="w-full bg-yellow-400 text-black hover:bg-blue-600">
                   <Edit className="w-4 h-4 mr-2" />
                   Edit Director
                 </Button>
@@ -205,7 +252,7 @@ export default function DirectorDetailsModal({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Director</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{director.name}"? This action cannot be undone 
+              Are you sure you want to delete "{director.name || 'this director'}"? This action cannot be undone 
               and will remove all associated data.
             </AlertDialogDescription>
           </AlertDialogHeader>

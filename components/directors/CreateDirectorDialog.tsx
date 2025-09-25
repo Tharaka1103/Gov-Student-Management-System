@@ -21,7 +21,7 @@ import { Director } from '@/types';
 interface CreateDirectorDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess: (director: Director & { generatedPassword: string }) => void;
+  onSuccess: (director: Director) => void; // Changed: Remove generatedPassword from here
 }
 
 interface DirectorFormData {
@@ -30,23 +30,9 @@ interface DirectorFormData {
   nic: string;
   mobile: string;
   address: string;
-  managingDepartments: string[];
   profilePicture?: File;
   password: string;
 }
-
-const departments = [
-  'Information Technology',
-  'Human Resources',
-  'Finance',
-  'Operations',
-  'Marketing',
-  'Administration',
-  'Research & Development',
-  'Legal Affairs',
-  'Public Relations',
-  'Quality Assurance'
-];
 
 export default function CreateDirectorDialog({
   isOpen,
@@ -59,7 +45,6 @@ export default function CreateDirectorDialog({
     nic: '',
     mobile: '',
     address: '',
-    managingDepartments: [],
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -67,6 +52,18 @@ export default function CreateDirectorDialog({
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [isPasswordCustom, setIsPasswordCustom] = useState(false);
+
+  // Safe function to get initials
+  const getInitials = (name: string | undefined | null): string => {
+    if (!name || typeof name !== 'string') return 'U';
+    return name.split(' ')
+      .map(n => n.trim())
+      .filter(n => n.length > 0)
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   // Generate random password
   const generateRandomPassword = () => {
@@ -90,7 +87,7 @@ export default function CreateDirectorDialog({
 
   const handlePasswordChange = (value: string) => {
     setFormData(prev => ({ ...prev, password: value }));
-    setIsPasswordCustom(true); // Mark as custom when user manually changes it
+    setIsPasswordCustom(true);
   };
 
   const handleGenerateRandomPassword = () => {
@@ -104,20 +101,11 @@ export default function CreateDirectorDialog({
     if (formData.name) {
       const simplePassword = formData.name.toLowerCase().replace(/\s+/g, '') + '1234';
       setFormData(prev => ({ ...prev, password: simplePassword }));
-      setIsPasswordCustom(false); // Allow auto-updates for simple password
+      setIsPasswordCustom(false);
       toast.success('Simple password generated!');
     } else {
       toast.error('Please enter the name first');
     }
-  };
-
-  const handleDepartmentChange = (department: string) => {
-    setFormData(prev => ({
-      ...prev,
-      managingDepartments: prev.managingDepartments.includes(department)
-        ? prev.managingDepartments.filter(d => d !== department)
-        : [...prev.managingDepartments, department]
-    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -143,12 +131,6 @@ export default function CreateDirectorDialog({
     setIsLoading(true);
     setError('');
 
-    if (formData.managingDepartments.length === 0) {
-      setError('Please select at least one managing department');
-      setIsLoading(false);
-      return;
-    }
-
     if (!formData.password || formData.password.length < 6) {
       setError('Password must be at least 6 characters long');
       setIsLoading(false);
@@ -158,9 +140,7 @@ export default function CreateDirectorDialog({
     try {
       const submitData = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        if (key === 'managingDepartments') {
-          submitData.append(key, JSON.stringify(value));
-        } else if (key === 'profilePicture' && value) {
+        if (key === 'profilePicture' && value) {
           submitData.append(key, value as File);
         } else if (key !== 'profilePicture') {
           submitData.append(key, value as string);
@@ -178,7 +158,19 @@ export default function CreateDirectorDialog({
         throw new Error(data.message || 'Failed to create director');
       }
 
-      onSuccess(data);
+      // Fix: Pass only the director object, not the entire response
+      if (data.director) {
+        // Show success message with generated password
+        if (data.generatedPassword) {
+          toast.success(`Director created! Password: ${data.generatedPassword}`, {
+            duration: 10000, // Show for 10 seconds
+          });
+        }
+        
+        onSuccess(data.director); // Pass only the director object
+      } else {
+        throw new Error('Invalid response format');
+      }
       
       // Reset form
       setFormData({
@@ -187,13 +179,13 @@ export default function CreateDirectorDialog({
         nic: '',
         mobile: '',
         address: '',
-        managingDepartments: [],
         password: ''
       });
       setPreviewImage(null);
       setIsPasswordCustom(false);
 
     } catch (error: any) {
+      console.error('Create director error:', error);
       setError(error.message);
     } finally {
       setIsLoading(false);
@@ -210,7 +202,6 @@ export default function CreateDirectorDialog({
         nic: '',
         mobile: '',
         address: '',
-        managingDepartments: [],
         password: ''
       });
       setPreviewImage(null);
@@ -223,7 +214,7 @@ export default function CreateDirectorDialog({
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <Building className="w-5 h-5 text-blue-600" />
+            <Building className="w-5 h-5 text-red-900" />
             <span>Create New Director</span>
           </DialogTitle>
           <DialogDescription>
@@ -249,7 +240,7 @@ export default function CreateDirectorDialog({
                   <Avatar className="w-16 h-16">
                     <AvatarImage src={previewImage} alt="Profile preview" />
                     <AvatarFallback>
-                      {formData.name.split(' ').map(n => n[0]).join('')}
+                      {getInitials(formData.name)}
                     </AvatarFallback>
                   </Avatar>
                   <button
@@ -359,7 +350,7 @@ export default function CreateDirectorDialog({
             </div>
           </div>
 
-          {/* Password Section with Options */}
+          {/* Password Section */}
           <div className="space-y-4">
             <Label>Password *</Label>
             <div className="space-y-3">
@@ -407,37 +398,20 @@ export default function CreateDirectorDialog({
               </div>
               
               <div className="text-xs text-gray-600 space-y-1">
-                <p>• Simple Password: Uses name + "1234" (e.g., "johnsmith1234")</p>
-                <p>• Random Password: Generates a secure 12-character password</p>
-                <p>• You can also type your own custom password</p>
+                <p key="password-help-1">• Simple Password: Uses name + "1234" (e.g., "johnsmith1234")</p>
+                <p key="password-help-2">• Random Password: Generates a secure 12-character password</p>
+                <p key="password-help-3">• You can also type your own custom password</p>
               </div>
             </div>
           </div>
-          
-          <div className="space-y-2">
-            <Label>Managing Departments *</Label>
-            <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto p-3 border rounded-md bg-gray-50">
-              {departments.map((dept) => (
-                <label key={dept} className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-white rounded">
-                  <input
-                    type="checkbox"
-                    checked={formData.managingDepartments.includes(dept)}
-                    onChange={() => handleDepartmentChange(dept)}
-                    className="rounded border-gray-300"
-                  />
-                  <span className="text-sm">{dept}</span>
-                </label>
-              ))}
-            </div>
-          </div>
-          
+
           <div className="flex justify-end space-x-4 pt-4">
             <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-red-900 hover:bg-red-700"
               disabled={isLoading}
             >
               {isLoading ? (

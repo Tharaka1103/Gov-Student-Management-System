@@ -75,14 +75,14 @@ export default function CreateEmployeeDialog({
       }
 
       setFormData(prev => ({ ...prev, profilePicture: file }));
-      
+
       // Create preview
       const reader = new FileReader();
       reader.onload = (e) => {
         setPreviewImage(e.target?.result as string);
       };
       reader.readAsDataURL(file);
-      
+
       toast.success('Profile picture selected');
     }
   };
@@ -90,15 +90,15 @@ export default function CreateEmployeeDialog({
   const validateImageFile = (file: File): { valid: boolean; error?: string } => {
     const maxSize = 5 * 1024 * 1024; // 5MB
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
-    
+
     if (!allowedTypes.includes(file.type)) {
       return { valid: false, error: 'Only JPEG, PNG, and WebP files are allowed.' };
     }
-    
+
     if (file.size > maxSize) {
       return { valid: false, error: 'File size must be less than 5MB.' };
     }
-    
+
     return { valid: true };
   };
 
@@ -145,7 +145,7 @@ export default function CreateEmployeeDialog({
       }
 
       onSuccess(data.employee);
-      
+
       // Reset form
       setFormData({
         name: '',
@@ -192,7 +192,7 @@ export default function CreateEmployeeDialog({
       <DialogContent className="max-w-3xl backdrop-blur-xl bg-white/95 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
-            <UserPlus className="w-5 h-5 text-blue-600" />
+            <UserPlus className="w-5 h-5 text-red-900" />
             <span>Add New Employee</span>
           </DialogTitle>
           <DialogDescription>
@@ -248,7 +248,7 @@ export default function CreateEmployeeDialog({
               </div>
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name *</Label>
@@ -261,7 +261,7 @@ export default function CreateEmployeeDialog({
                 className="bg-white/50"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">Email Address *</Label>
               <Input
@@ -275,7 +275,7 @@ export default function CreateEmployeeDialog({
               />
             </div>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="nic">NIC Number *</Label>
@@ -288,7 +288,7 @@ export default function CreateEmployeeDialog({
                 className="bg-white/50"
               />
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="mobile">Mobile Number *</Label>
               <Input
@@ -301,7 +301,7 @@ export default function CreateEmployeeDialog({
               />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label htmlFor="address">Address *</Label>
             <Textarea
@@ -314,7 +314,7 @@ export default function CreateEmployeeDialog({
               rows={3}
             />
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="servicePeriod">Service Period *</Label>
@@ -329,27 +329,19 @@ export default function CreateEmployeeDialog({
             </div>
 
             <div className="space-y-2">
-              <Label>Date of Joining Service *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal bg-white/50"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.dateOfJoiningService ? format(formData.dateOfJoiningService, 'PPP') : 'Select joining date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={formData.dateOfJoiningService || undefined}
-                    onSelect={(date) => setFormData(prev => ({ ...prev, dateOfJoiningService: date || null }))}
-                    disabled={(date) => date > new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label htmlFor="dateOfJoiningService">Date of Joining Service *</Label>
+              <Input
+                id="dateOfJoiningService"
+                type="date"
+                value={formData.dateOfJoiningService ? format(formData.dateOfJoiningService, 'yyyy-MM-dd') : ''}
+                onChange={(e) => {
+                  const selectedDate = e.target.value ? new Date(e.target.value) : null;
+                  setFormData(prev => ({ ...prev, dateOfJoiningService: selectedDate }));
+                }}
+                max={format(new Date(), 'yyyy-MM-dd')}
+                className="w-full bg-white/50"
+                required
+              />
             </div>
           </div>
 
@@ -363,14 +355,14 @@ export default function CreateEmployeeDialog({
               className="bg-white/50"
             />
           </div>
-          
+
           <div className="flex justify-end space-x-4 pt-4">
             <Button type="button" variant="outline" onClick={handleClose} disabled={isLoading}>
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-blue-500"
+              className="bg-red-900 hover:bg-red-700"
               disabled={isLoading}
             >
               {isLoading ? (

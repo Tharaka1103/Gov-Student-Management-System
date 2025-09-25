@@ -175,7 +175,7 @@ export default function EmployeesPage() {
   const stats = getEmployeeStats();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen bg-white">
       <DirectorHeader user={user} />
       
       <main className="container mx-auto px-4 py-8">
@@ -210,7 +210,7 @@ export default function EmployeesPage() {
             </Button>
             <Button
               onClick={() => setIsCreateDialogOpen(true)}
-              className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+              className="bg-red-900 hover:bg-red-700"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Employee
@@ -305,7 +305,7 @@ export default function EmployeesPage() {
               {!searchTerm && (
                 <Button
                   onClick={() => setIsCreateDialogOpen(true)}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700"
+                  className="bg-red-900 hover:bg-red-700 text-white"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
                   Add Your First Employee

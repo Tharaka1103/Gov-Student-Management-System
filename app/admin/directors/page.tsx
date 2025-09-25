@@ -72,12 +72,9 @@ export default function DirectorsPage() {
 
     if (searchTerm) {
       filtered = filtered.filter(director =>
-        director.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        director.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        director.nic.includes(searchTerm) ||
-        director.managingDepartments.some(dept => 
-          dept.toLowerCase().includes(searchTerm.toLowerCase())
-        )
+        (director.name && director.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (director.email && director.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (director.nic && director.nic.includes(searchTerm))
       );
     }
 
@@ -115,14 +112,12 @@ export default function DirectorsPage() {
 
   const getDirectorStats = () => {
     const totalDirectors = directors.length;
-    const activeDirectors = directors.filter(d => d.isActive).length;
-    const totalDepartments = directors.reduce((sum, d) => sum + (d.managingDepartments?.length || 0), 0);
+    const activeDirectors = directors.filter(d => d && d.isActive).length;
     
     return {
       total: totalDirectors,
       active: activeDirectors,
       inactive: totalDirectors - activeDirectors,
-      totalDepartments
     };
   };
 
@@ -138,52 +133,24 @@ export default function DirectorsPage() {
             <h1 className="text-2xl font-bold text-gray-900 mb-1">
               Directors Management
             </h1>
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-600 text-md">
               Manage institutional directors and their departments
             </p>
           </div>
           <div className="flex space-x-2 mt-4 md:mt-0">
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="lg">
               <Download className="w-4 h-4 mr-2" />
               Export
             </Button>
             <Button
               onClick={() => setIsCreateDialogOpen(true)}
-              className="bg-blue-600 hover:bg-blue-700"
-              size="sm"
+              className="bg-red-900 hover:bg-red-700"
+              size="lg"
             >
               <Plus className="w-4 h-4 mr-2" />
               Add Director
             </Button>
           </div>
-        </div>
-
-        {/* Stats Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <Card className='bg-blue-200'>
-            <CardContent className="p-4">
-              <div className="text-xl font-bold text-blue-600">{stats.total}</div>
-              <p className="text-xs text-gray-600">Total Directors</p>
-            </CardContent>
-          </Card>
-          <Card className='bg-green-200'>
-            <CardContent className="p-4">
-              <div className="text-xl font-bold text-green-600">{stats.active}</div>
-              <p className="text-xs text-gray-600">Active</p>
-            </CardContent>
-          </Card>
-          <Card  className='bg-red-200'>
-            <CardContent className="p-4">
-              <div className="text-xl font-bold text-red-600">{stats.inactive}</div>
-              <p className="text-xs text-gray-600">Inactive</p>
-            </CardContent>
-          </Card>
-          <Card className='bg-purple-200'>
-            <CardContent className="p-4">
-              <div className="text-xl font-bold text-purple-600">{stats.totalDepartments}</div>
-              <p className="text-xs text-gray-600">Departments</p>
-            </CardContent>
-          </Card>
         </div>
 
         {/* Search */}
@@ -192,10 +159,10 @@ export default function DirectorsPage() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
-                placeholder="Search directors by name, email, NIC, or department..."
+                placeholder="Search directors by name, email, NIC..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-10 border border-red-900 bg-yellow-100"
               />
             </div>
           </CardContent>
@@ -204,8 +171,8 @@ export default function DirectorsPage() {
         {/* Directors Grid */}
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
-              <Card key={i}>
+            {Array.from({ length: 8 }, (_, index) => (
+              <Card key={`loading-skeleton-${index}`}>
                 <CardContent className="p-4">
                   <div className="animate-pulse">
                     <div className="h-12 w-12 bg-gray-300 rounded-full mb-3 mx-auto"></div>
@@ -230,7 +197,7 @@ export default function DirectorsPage() {
               {!searchTerm && (
                 <Button
                   onClick={() => setIsCreateDialogOpen(true)}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-red-900 hover:bg-red-700 text-white"
                 >
                   <UserPlus className="w-4 h-4 mr-2" />
                   Add Your First Director
@@ -242,7 +209,7 @@ export default function DirectorsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {filteredDirectors.map((director) => (
               <DirectorCard
-                key={director._id}
+                key={director._id || `director-${Math.random()}`}
                 director={director}
                 onUpdate={handleDirectorUpdated}
                 onDelete={handleDirectorDeleted}

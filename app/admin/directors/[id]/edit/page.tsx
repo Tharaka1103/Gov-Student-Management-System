@@ -29,19 +29,6 @@ import { User as UserType, Director } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
 
-const departments = [
-  'Information Technology',
-  'Human Resources',
-  'Finance',
-  'Operations',
-  'Marketing',
-  'Administration',
-  'Research & Development',
-  'Legal Affairs',
-  'Public Relations',
-  'Quality Assurance'
-];
-
 export default function EditDirectorPage() {
   const params = useParams();
   const router = useRouter();
@@ -59,7 +46,6 @@ export default function EditDirectorPage() {
     mobile: '',
     address: '',
     isActive: true,
-    managingDepartments: [] as string[],
     profilePicture: null as File | null
   });
 
@@ -94,7 +80,6 @@ export default function EditDirectorPage() {
           mobile: directorData.mobile,
           address: directorData.address,
           isActive: directorData.isActive,
-          managingDepartments: directorData.managingDepartments || [],
           profilePicture: null
         });
         setPreviewImage(directorData.profilePicture);
@@ -112,15 +97,6 @@ export default function EditDirectorPage() {
 
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleDepartmentChange = (department: string) => {
-    setFormData(prev => ({
-      ...prev,
-      managingDepartments: prev.managingDepartments.includes(department)
-        ? prev.managingDepartments.filter(d => d !== department)
-        : [...prev.managingDepartments, department]
-    }));
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -146,18 +122,10 @@ export default function EditDirectorPage() {
     setIsSaving(true);
     setError('');
 
-    if (formData.managingDepartments.length === 0) {
-      setError('Please select at least one managing department');
-      setIsSaving(false);
-      return;
-    }
-
     try {
       const submitData = new FormData();
       Object.entries(formData).forEach(([key, value]) => {
-        if (key === 'managingDepartments') {
-          submitData.append(key, JSON.stringify(value));
-        } else if (key === 'profilePicture' && value) {
+        if (key === 'profilePicture' && value) {
           submitData.append(key, value as File);
         } else if (key === 'isActive') {
           submitData.append(key, value as string);
@@ -216,7 +184,7 @@ export default function EditDirectorPage() {
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="max-w-4xl">
+        <form onSubmit={handleSubmit} className="md:px-20">
           {error && (
             <Alert className="mb-6 border-red-200 bg-red-50">
               <AlertDescription className="text-red-800">
@@ -367,31 +335,6 @@ export default function EditDirectorPage() {
             </CardContent>
           </Card>
 
-          {/* Managing Departments */}
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg flex items-center">
-                <Building className="w-5 h-5 mr-2" />
-                Managing Departments *
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {departments.map((dept) => (
-                  <label key={dept} className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-gray-50 rounded">
-                    <input
-                      type="checkbox"
-                      checked={formData.managingDepartments.includes(dept)}
-                      onChange={() => handleDepartmentChange(dept)}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm">{dept}</span>
-                  </label>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-          
           {/* Action Buttons */}
           <div className="flex justify-end space-x-4">
             <Link href="/admin/directors">
@@ -401,7 +344,7 @@ export default function EditDirectorPage() {
             </Link>
             <Button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700"
+              className="bg-yellow-400 hover:bg-yellow-500 text-black"
               disabled={isSaving}
             >
               {isSaving ? (

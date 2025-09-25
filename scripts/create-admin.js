@@ -122,7 +122,7 @@ function colorLog(color, message) {
 
 async function connectToDatabase() {
   try {
-    const MONGODB_URI = "mongodb+srv://tharaka:1234@cluster0.yd0xvos.mongodb.net/Student-Management-System?retryWrites=true&w=majority&appName=Cluster0";
+    const MONGODB_URI = "mongodb+srv://dimondswebdesign_db_user:1234@cluster0.hc9ek0l.mongodb.net/Student-Management-System?retryWrites=true&w=majority&appName=Cluster0";
     
     if (!MONGODB_URI) {
       throw new Error('MONGODB_URI environment variable is not defined');

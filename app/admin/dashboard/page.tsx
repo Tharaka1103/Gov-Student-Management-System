@@ -70,7 +70,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-50 via-pink-50 to-purple-50">
+    <div className="min-h-screen bg-white">
       <AdminHeader user={user} />
       
       <main className="container mx-auto px-4 py-8">
@@ -86,33 +86,33 @@ export default function AdminDashboard() {
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30 hover:bg-white/50 transition-all duration-300">
+          <Card className="backdrop-blur-xl bg-yellow-100 border-l-8 border-red-900 hover:bg-yellow-400/50 transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Directors</CardTitle>
-              <Building className="h-4 w-4 text-blue-600" />
+              <Building className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-blue-600">{stats.totalDirectors}</div>
+              <div className="text-2xl font-bold text-green-600">{stats.totalDirectors}</div>
               <p className="text-xs text-gray-600">
                 +2 from last month
               </p>
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30 hover:bg-white/50 transition-all duration-300">
+          <Card className="backdrop-blur-xl bg-yellow-100 border-l-8 border-red-900 hover:bg-yellow-400/50 transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">System Admins</CardTitle>
-              <Crown className="h-4 w-4 text-red-600" />
+              <Crown className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats.totalAdmins}</div>
+              <div className="text-2xl font-bold text-green-600">{stats.totalAdmins}</div>
               <p className="text-xs text-gray-600">
                 Active administrators
               </p>
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30 hover:bg-white/50 transition-all duration-300">
+          <Card className="backdrop-blur-xl bg-yellow-100 border-l-8 border-red-900 hover:bg-yellow-400/50 transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Employees</CardTitle>
               <Users className="h-4 w-4 text-green-600" />
@@ -125,13 +125,13 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30 hover:bg-white/50 transition-all duration-300">
+          <Card className="backdrop-blur-xl bg-yellow-100 border-l-8 border-red-900 hover:bg-yellow-400/50 transition-all duration-300">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">System Health</CardTitle>
-              <Activity className="h-4 w-4 text-purple-600" />
+              <Activity className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-purple-600">{stats.systemHealth}</div>
+              <div className="text-2xl font-bold text-green-600">{stats.systemHealth}</div>
               <p className="text-xs text-gray-600">
                 All systems operational
               </p>
@@ -143,7 +143,7 @@ export default function AdminDashboard() {
 
         {/* Management Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30 hover:bg-white/50 transition-all duration-300 group">
+          <Card className=" bg-white/40 border-l-8 border-red-900 hover:bg-white/50 transition-all duration-300 group">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Building className="w-5 h-5 text-blue-600" />
@@ -158,13 +158,13 @@ export default function AdminDashboard() {
                 <div className="text-3xl font-bold text-blue-600">{stats.totalDirectors}</div>
                 <div className="flex space-x-2">
                   <Link href="/admin/directors">
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className='border border-yellow-400 text-yellow-600'>
                       <Eye className="w-4 h-4 mr-1" />
                       View All
                     </Button>
                   </Link>
                   <Link href="/admin/directors/create">
-                    <Button size="sm">
+                    <Button size="sm" className='bg-red-900 hover:bg-red-800'>
                       <Plus className="w-4 h-4 mr-1" />
                       Add New
                     </Button>
@@ -174,7 +174,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30 hover:bg-white/50 transition-all duration-300 group">
+          <Card className=" bg-white/40 border-l-8 border-red-900 hover:bg-white/50 transition-all duration-300 group">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <Crown className="w-5 h-5 text-red-600" />
@@ -189,13 +189,13 @@ export default function AdminDashboard() {
                 <div className="text-3xl font-bold text-red-600">{stats.totalAdmins}</div>
                 <div className="flex space-x-2">
                   <Link href="/admin/admins">
-                    <Button size="sm" variant="outline">
+                    <Button size="sm" variant="outline" className='border border-yellow-400 text-yellow-600'>
                       <Eye className="w-4 h-4 mr-1" />
                       View All
                     </Button>
                   </Link>
                   <Link href="/admin/admins/create">
-                    <Button size="sm">
+                    <Button size="sm" className='bg-red-900 hover:bg-red-800'>
                       <Plus className="w-4 h-4 mr-1" />
                       Add New
                     </Button>
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30 hover:bg-white/50 transition-all duration-300 group">
+          <Card className=" bg-white/40 border-l-8 border-red-900 hover:bg-white/50 transition-all duration-300 group">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <BarChart3 className="w-5 h-5 text-purple-600" />
