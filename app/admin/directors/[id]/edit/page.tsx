@@ -28,6 +28,7 @@ import { toast } from 'sonner';
 import { User as UserType, Director } from '@/types';
 import Image from 'next/image';
 import Link from 'next/link';
+import AdminFooter from '@/components/layout/AdminFooter';
 
 export default function EditDirectorPage() {
   const params = useParams();
@@ -362,6 +363,7 @@ export default function EditDirectorPage() {
           </div>
         </form>
       </main>
+      <AdminFooter/>
     </div>
   );
 }

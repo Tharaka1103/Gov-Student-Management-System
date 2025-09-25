@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import DirectorHeader from '@/components/layout/DirectorHeader';
 import EditDivisionForm from '@/components/divisions/EditDivisionForm';
 import { User } from '@/types';
+import DirectorFooter from '@/components/layout/DirectorFooter';
 
 interface EditDivisionPageProps {
   params: Promise<{ id: string }>;
@@ -44,6 +45,7 @@ export default function EditDivisionPage({ params }: EditDivisionPageProps) {
       <main className="py-8">
         <EditDivisionForm divisionId={id} />
       </main>
+      <DirectorFooter/>
     </div>
   );
 }

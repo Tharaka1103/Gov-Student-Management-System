@@ -5,6 +5,7 @@ import DirectorHeader from '@/components/layout/DirectorHeader';
 import EditEmployeeForm from '@/components/employees/EditEmployeeForm';
 import { useState, useEffect } from 'react';
 import { User } from '@/types';
+import DirectorFooter from '@/components/layout/DirectorFooter';
 
 interface EditEmployeePageProps {
   params: Promise<{ id: string }>;
@@ -44,6 +45,7 @@ export default function EditEmployeePage({ params }: EditEmployeePageProps) {
       <main className="py-8">
         <EditEmployeeForm employeeId={id} />
       </main>
+      <DirectorFooter/>
     </div>
   );
 }

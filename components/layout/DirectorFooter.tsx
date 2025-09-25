@@ -62,77 +62,11 @@ export default function DirectorFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-yellow-100 text-gray-800 border-t border-yellow-200">
+    <footer className="bg-yellow-50 text-gray-800 border-t border-red-900">
       <div className="container mx-auto px-4 py-6">
-        {/* Director Stats */}
-        <Card className="bg-yellow-50 border-yellow-300 mb-6">
-          <div className="p-4">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 flex items-center">
-                <Building className="w-5 h-5 mr-2 text-yellow-600" />
-                Director Dashboard Overview
-              </h3>
-              <Badge className="bg-yellow-400 text-gray-800 hover:bg-yellow-500">
-                Department Director
-              </Badge>
-            </div>
-            
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              <div className="text-center p-3 bg-white rounded-lg border border-yellow-200">
-                <div className="flex items-center justify-center mb-2">
-                  <Users className="w-5 h-5 text-blue-600" />
-                </div>
-                <p className="text-sm font-medium text-gray-700">Total Staff</p>
-                <p className="text-lg font-bold text-blue-600">{directorStats.totalEmployees}</p>
-              </div>
-              
-              <div className="text-center p-3 bg-white rounded-lg border border-yellow-200">
-                <div className="flex items-center justify-center mb-2">
-                  <UserCheck className="w-5 h-5 text-green-600" />
-                </div>
-                <p className="text-sm font-medium text-gray-700">Active</p>
-                <p className="text-lg font-bold text-green-600">{directorStats.activeEmployees}</p>
-              </div>
-              
-              <div className="text-center p-3 bg-white rounded-lg border border-yellow-200">
-                <div className="flex items-center justify-center mb-2">
-                  <Building className="w-5 h-5 text-purple-600" />
-                </div>
-                <p className="text-sm font-medium text-gray-700">Departments</p>
-                <p className="text-lg font-bold text-purple-600">{directorStats.departmentCount}</p>
-              </div>
-              
-              <div className="text-center p-3 bg-white rounded-lg border border-yellow-200">
-                <div className="flex items-center justify-center mb-2">
-                  <FileText className="w-5 h-5 text-orange-600" />
-                </div>
-                <p className="text-sm font-medium text-gray-700">Pending</p>
-                <p className="text-lg font-bold text-orange-600">{directorStats.pendingReports}</p>
-              </div>
-              
-              <div className="text-center p-3 bg-white rounded-lg border border-yellow-200">
-                <div className="flex items-center justify-center mb-2">
-                  <TrendingUp className={`w-5 h-5 ${getLoadColor(directorStats.systemLoad)}`} />
-                </div>
-                <p className="text-sm font-medium text-gray-700">Load</p>
-                <p className={`text-sm font-bold ${getLoadColor(directorStats.systemLoad)}`}>
-                  {directorStats.systemLoad}
-                </p>
-              </div>
-              
-              <div className="text-center p-3 bg-white rounded-lg border border-yellow-200">
-                <div className="flex items-center justify-center mb-2">
-                  <Clock className="w-5 h-5 text-indigo-600" />
-                </div>
-                <p className="text-sm font-medium text-gray-700">Last Sync</p>
-                <p className="text-xs font-medium text-indigo-600">{directorStats.lastActivity}</p>
-              </div>
-            </div>
-          </div>
-        </Card>
-
+        
         {/* Copyright */}
-        <div className="text-center border-t border-yellow-300 pt-4">
+        <div className="text-center ">
           <div className="flex items-center justify-center space-x-2 mb-2">
             <Building className="w-5 h-5 text-yellow-600" />
             <span className="font-semibold text-gray-800">Department Director</span>

@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import AdminFooter from '@/components/layout/AdminFooter';
 
 export default function AdminProfilePage() {
   const { user: authUser, loading } = useAuth();
@@ -97,6 +98,7 @@ export default function AdminProfilePage() {
 
         <ProfileForm user={user} onUserUpdate={handleUserUpdate} />
       </main>
+      <AdminFooter/>
     </div>
   );
 }

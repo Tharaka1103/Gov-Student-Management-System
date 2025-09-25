@@ -23,6 +23,7 @@ import {
 import { toast } from 'sonner';
 import { User, Employee } from '@/types';
 import LoadingIndicator from '@/components/LoadingIndicator ';
+import DirectorFooter from '@/components/layout/DirectorFooter';
 
 export default function EmployeesPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -338,6 +339,7 @@ export default function EmployeesPage() {
           directorId={user._id}
         />
       </main>
+      <DirectorFooter/>
     </div>
   );
 }

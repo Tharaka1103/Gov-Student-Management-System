@@ -181,7 +181,7 @@ export default function LoginForm() {
               <p className="text-gray-600">Please sign in to your account to continue</p>
             </div>
 
-            <Card className="border-0 shadow-2xl">
+            <Card className="border bg-yellow-50 border-red-900">
               <CardContent className="p-8">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   {error && (
@@ -205,7 +205,7 @@ export default function LoginForm() {
                         value={credentials.email}
                         onChange={(e) => setCredentials(prev => ({ ...prev, email: e.target.value }))}
                         required
-                        className="pl-12 h-14 border-2 border-gray-200 focus:border-red-900 focus:ring-red-900 rounded-xl text-base"
+                        className="pl-12 h-14 border-2 border-red-900 focus:border-red-900 focus:ring-red-900 rounded-xs text-base"
                       />
                     </div>
                   </div>
@@ -223,7 +223,7 @@ export default function LoginForm() {
                         value={credentials.password}
                         onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
                         required
-                        className="pl-12 pr-12 h-14 border-2 border-gray-200 focus:border-red-900 focus:ring-red-900 rounded-xl text-base"
+                        className="pl-12 pr-12 h-14 border-2 border-red-900 focus:border-red-900 focus:ring-red-900 rounded-xs text-base"
                       />
                       <button
                         type="button"
@@ -241,7 +241,7 @@ export default function LoginForm() {
                         id="rememberMe"
                         checked={credentials.rememberMe}
                         onCheckedChange={handleRememberMeChange}
-                        className="border-2 border-gray-300 data-[state=checked]:bg-red-900 data-[state=checked]:border-red-900"
+                        className="border-2 border-red-900 data-[state=checked]:bg-red-900 data-[state=checked]:border-red-900"
                       />
                       <Label
                         htmlFor="rememberMe"
@@ -260,7 +260,7 @@ export default function LoginForm() {
                   
                   <Button
                     type="submit"
-                    className="w-full h-14 bg-red-900 hover:bg-red-800 text-white font-semibold text-base rounded-xl shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+                    className="w-full h-14 bg-red-900 hover:bg-red-800 text-white font-semibold text-base rounded-xs shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
                     disabled={isLoading}
                   >
                     {isLoading ? (
@@ -281,7 +281,7 @@ export default function LoginForm() {
             </Card>
 
             {/* Quick Access Info */}
-            <div className="mt-8 p-6 bg-yellow-50 rounded-xl border border-yellow-200">
+            <div className="mt-8 p-6 bg-yellow-50 rounded-xs border border-yellow-200">
               <div className="flex items-center space-x-2 mb-4">
                 <Star className="w-5 h-5 text-yellow-600" />
                 <h3 className="text-sm font-semibold text-yellow-900">Quick Access Roles</h3>

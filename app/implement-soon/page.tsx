@@ -17,6 +17,7 @@ import {
 import { User } from '@/types';
 import Link from 'next/link';
 import LoadingIndicator, { useLoading } from '@/components/LoadingIndicator ';
+import AdminFooter from '@/components/layout/AdminFooter';
 
 export default function ComingSoonPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -149,6 +150,7 @@ export default function ComingSoonPage() {
           </div>
         </div>
       </main>
+      <AdminFooter/>
     </div>
   );
 }

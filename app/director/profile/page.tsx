@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import DirectorFooter from '@/components/layout/DirectorFooter';
 
 export default function DirectorProfilePage() {
   const { user: authUser, loading } = useAuth();
@@ -118,6 +119,7 @@ export default function DirectorProfilePage() {
           </Card>
         )}
       </main>
+      <DirectorFooter/>
     </div>
   );
 }

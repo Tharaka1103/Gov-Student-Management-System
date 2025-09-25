@@ -6,6 +6,7 @@ import DirectorHeader from '@/components/layout/DirectorHeader';
 import { User, Division, Employee } from '@/types';
 import { toast } from 'sonner';
 import LoadingIndicator from '@/components/LoadingIndicator ';
+import DirectorFooter from '@/components/layout/DirectorFooter';
 interface DivisionDetailPageProps {
   params: Promise<{ id: string }>;
 }
@@ -139,6 +140,7 @@ export default function DivisionDetailPage({ params }: DivisionDetailPageProps) 
             </button>
           </div>
         </div>
+        <DirectorFooter/>
       </div>
     );
   }
@@ -455,6 +457,7 @@ export default function DivisionDetailPage({ params }: DivisionDetailPageProps) 
           </div>
         )}
       </main>
+      <DirectorFooter/>
     </div>
   );
 }

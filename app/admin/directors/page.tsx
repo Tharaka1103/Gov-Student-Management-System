@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import AdminHeader from '@/components/layout/AdminHeader';
+import AdminFooter from '@/components/layout/AdminFooter';
 import DirectorCard from '@/components/directors/DirectorCard';
 import CreateDirectorDialog from '@/components/directors/CreateDirectorDialog';
 import DirectorDetailsModal from '@/components/directors/DirectorDetailsModal';
@@ -241,6 +242,7 @@ export default function DirectorsPage() {
           onDelete={handleDirectorDeleted}
         />
       </main>
+      <AdminFooter/>
     </div>
   );
 }

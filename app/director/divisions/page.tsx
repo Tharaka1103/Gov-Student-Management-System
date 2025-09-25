@@ -7,6 +7,7 @@ import CreateDivisionDialog from '@/components/divisions/CreateDivisionDialog';
 import { User, Division } from '@/types';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import DirectorFooter from '@/components/layout/DirectorFooter';
 
 export default function DivisionsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -217,6 +218,7 @@ export default function DivisionsPage() {
           onSuccess={handleDivisionCreated}
         />
       </main>
+      <DirectorFooter/>
     </div>
   );
 }

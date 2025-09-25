@@ -17,6 +17,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Loader2, Building, Upload, X, Eye, EyeOff, User, Mail, Phone, IdCard, MapPin, RefreshCw, Key } from 'lucide-react';
 import { toast } from 'sonner';
 import { Director } from '@/types';
+import AdminFooter from '../layout/AdminFooter';
 
 interface CreateDirectorDialogProps {
   isOpen: boolean;

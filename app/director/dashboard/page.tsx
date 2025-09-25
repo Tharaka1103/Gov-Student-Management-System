@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import DirectorHeader from '@/components/layout/DirectorHeader';
+import DirectorFooter from '@/components/layout/DirectorFooter';
 import {
   Building,
   Users,
@@ -220,6 +221,7 @@ export default function DirectorDashboard() {
           </Card>
         </div>
       </main>
+      <DirectorFooter/>
     </div>
   );
 }
