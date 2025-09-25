@@ -77,7 +77,6 @@ export interface Student {
 }
 
 export interface LoginCredentials {
-  identifier: string; // email or nic
   email: string;
   password: string;
   rememberMe?: boolean;
