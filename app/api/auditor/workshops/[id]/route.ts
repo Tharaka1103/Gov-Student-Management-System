@@ -19,7 +19,7 @@ export async function GET(
 ) {
   try {
     const currentUser = await getCurrentUser();
-    if (!currentUser || currentUser.role !== 'internal_auditor') {
+    if (!currentUser || currentUser.role !== 'employee') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -50,7 +50,7 @@ export async function PUT(
 ) {
   try {
     const currentUser = await getCurrentUser();
-    if (!currentUser || currentUser.role !== 'internal_auditor') {
+    if (!currentUser || currentUser.role !== 'employee') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -91,7 +91,7 @@ export async function DELETE(
 ) {
   try {
     const currentUser = await getCurrentUser();
-    if (!currentUser || currentUser.role !== 'internal_auditor') {
+    if (!currentUser || currentUser.role !== 'employee') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 

@@ -6,7 +6,7 @@ import { getCurrentUser } from '@/lib/auth';
 export async function GET(req: NextRequest) {
   try {
     const currentUser = await getCurrentUser();
-    if (!currentUser || currentUser.role !== 'internal_auditor') {
+    if (!currentUser || currentUser.role !== 'employee') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 

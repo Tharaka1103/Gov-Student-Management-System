@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Division from '@/models/Division';
-import Employee from '@/models/Employee';
+import User from '@/models/User';
 
 // GET all divisions for director
 export async function GET(request: NextRequest) {
@@ -14,9 +14,21 @@ export async function GET(request: NextRequest) {
 
     await dbConnect();
     const divisions = await Division.find({ director: user._id })
-      .populate('employees', 'name email profilePicture isActive')
-      .populate('headProgramOfficer', 'name email profilePicture')
-      .populate('subProgramOfficer', 'name email profilePicture')
+      .populate({
+        path: 'employees',
+        match: { role: 'employee' },
+        select: 'name email profilePicture isActive'
+      })
+      .populate({
+        path: 'headProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      })
+      .populate({
+        path: 'subProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      })
       .sort({ createdAt: -1 });
 
     return NextResponse.json({ divisions });
@@ -48,11 +60,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Division name already exists' }, { status: 400 });
     }
 
-    // Validate employees belong to this director
+    // Validate employees belong to this director and are employees
     if (employees && employees.length > 0) {
-      const validEmployees = await Employee.find({
+      const validEmployees = await User.find({
         _id: { $in: employees },
-        director: user._id
+        director: user._id,
+        role: 'employee'
       });
       
       if (validEmployees.length !== employees.length) {
@@ -78,9 +91,21 @@ export async function POST(request: NextRequest) {
     await division.save();
 
     const populatedDivision = await Division.findById(division._id)
-      .populate('employees', 'name email profilePicture isActive')
-      .populate('headProgramOfficer', 'name email profilePicture')
-      .populate('subProgramOfficer', 'name email profilePicture');
+      .populate({
+        path: 'employees',
+        match: { role: 'employee' },
+        select: 'name email profilePicture isActive'
+      })
+      .populate({
+        path: 'headProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      })
+      .populate({
+        path: 'subProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      });
 
     return NextResponse.json({ division: populatedDivision }, { status: 201 });
   } catch (error) {

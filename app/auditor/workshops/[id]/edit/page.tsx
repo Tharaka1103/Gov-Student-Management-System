@@ -27,7 +27,7 @@ export default function EditWorkshopPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!loading && user && user.role === 'internal_auditor') {
+    if (!loading && user && user.role === 'employee') {
       fetchWorkshopDetails();
     }
   }, [user, loading, workshopId]);
@@ -72,7 +72,7 @@ export default function EditWorkshopPage() {
   }
 
   // Show error if user is not internal auditor or not logged in
-  if (!user || user.role !== 'internal_auditor') {
+  if (!user || user.role !== 'employee') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">

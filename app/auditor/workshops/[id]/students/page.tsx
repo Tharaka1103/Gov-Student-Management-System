@@ -32,7 +32,7 @@ export default function WorkshopStudentsPage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && user && user.role === 'internal_auditor') {
+    if (!loading && user && user.role === 'employee') {
       fetchWorkshopDetails();
     }
   }, [user, loading, workshopId]);
@@ -112,20 +112,8 @@ export default function WorkshopStudentsPage() {
     });
   };
 
-  // Show loading spinner while checking auth
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show error if user is not internal auditor or not logged in
-  if (!user || user.role !== 'internal_auditor') {
+  // Show error if user is not employee or not logged in
+  if (!user || user.role !== 'employee') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
         <div className="text-center">
@@ -183,7 +171,7 @@ export default function WorkshopStudentsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-white">
       <AuditorHeader user={user} />
       
       <main className="container mx-auto px-4 py-8">
@@ -252,19 +240,19 @@ export default function WorkshopStudentsPage() {
 
         {/* Workshop Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30">
+          <Card className="backdrop-blur-xl bg-yellow-200/40 border-l-8 border-red-900 hover:bg-yellow-200/50">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-green-600">{workshop.students.length}</div>
               <p className="text-sm text-gray-600">Enrolled Students</p>
             </CardContent>
           </Card>
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30">
+          <Card className="backdrop-blur-xl bg-yellow-200/40 border-l-8 border-red-900 hover:bg-yellow-200/50">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-blue-600">{workshop.maxParticipants - workshop.students.length}</div>
               <p className="text-sm text-gray-600">Available Spots</p>
             </CardContent>
           </Card>
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30">
+          <Card className="backdrop-blur-xl bg-yellow-200/40 border-l-8 border-red-900 hover:bg-yellow-200/50">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-purple-600">
                 {Math.round((workshop.students.length / workshop.maxParticipants) * 100)}%
@@ -272,7 +260,7 @@ export default function WorkshopStudentsPage() {
               <p className="text-sm text-gray-600">Capacity</p>
             </CardContent>
           </Card>
-          <Card className="backdrop-blur-xl bg-white/40 border border-white/30">
+          <Card className="backdrop-blur-xl bg-yellow-200/40 border-l-8 border-red-900 hover:bg-yellow-200/50">
             <CardContent className="p-4">
               <div className="text-2xl font-bold text-orange-600">
                 {workshop.students.filter(s => s.status === 'enrolled').length}

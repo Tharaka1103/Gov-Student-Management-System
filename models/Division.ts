@@ -4,8 +4,8 @@ const divisionSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
-    trim: true,
-    unique: true
+    unique: true,
+    trim: true
   },
   description: {
     type: String,
@@ -18,17 +18,15 @@ const divisionSchema = new mongoose.Schema({
   },
   employees: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee'
+    ref: 'User'
   }],
   headProgramOfficer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee',
-    default: null
+    ref: 'User'
   },
   subProgramOfficer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee',
-    default: null
+    ref: 'User'
   },
   isActive: {
     type: Boolean,

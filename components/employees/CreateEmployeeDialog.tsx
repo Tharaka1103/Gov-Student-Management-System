@@ -12,10 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { CalendarIcon, Loader2, UserPlus, Upload, X } from 'lucide-react';
+import { Loader2, UserPlus, Upload, X, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { Employee } from '@/types';
 import { format } from 'date-fns';
@@ -37,6 +35,8 @@ interface EmployeeFormData {
   servicePeriod: string;
   dateOfJoiningService: Date | null;
   degree: string;
+  council: string;
+  password: string;
   profilePicture?: File;
 }
 
@@ -54,11 +54,14 @@ export default function CreateEmployeeDialog({
     address: '',
     servicePeriod: '',
     dateOfJoiningService: null,
-    degree: ''
+    degree: '',
+    council: '',
+    password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleInputChange = (field: keyof EmployeeFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -108,6 +111,13 @@ export default function CreateEmployeeDialog({
     toast.info('Profile picture removed');
   };
 
+  const generatePassword = () => {
+    const name = formData.name.toLowerCase().replace(/\s+/g, '');
+    const generatedPassword = `${name}123`;
+    setFormData(prev => ({ ...prev, password: generatedPassword }));
+    toast.success('Password generated automatically');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -116,6 +126,12 @@ export default function CreateEmployeeDialog({
     // Validation
     if (!formData.dateOfJoiningService) {
       setError('Please select the date of joining service');
+      setIsLoading(false);
+      return;
+    }
+
+    if (!formData.password || formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
       setIsLoading(false);
       return;
     }
@@ -131,7 +147,6 @@ export default function CreateEmployeeDialog({
           submitData.append(key, value as string);
         }
       });
-      submitData.append('director', directorId);
 
       const response = await fetch('/api/director/employees', {
         method: 'POST',
@@ -146,6 +161,12 @@ export default function CreateEmployeeDialog({
 
       onSuccess(data.employee);
 
+      // Show success message with login credentials
+      toast.success('Employee created successfully!', {
+        description: `Login credentials - NIC: ${formData.nic}, Password: ${formData.password}`,
+        duration: 10000,
+      });
+
       // Reset form
       setFormData({
         name: '',
@@ -155,7 +176,9 @@ export default function CreateEmployeeDialog({
         address: '',
         servicePeriod: '',
         dateOfJoiningService: null,
-        degree: ''
+        degree: '',
+        council: '',
+        password: ''
       });
       setPreviewImage(null);
 
@@ -181,7 +204,9 @@ export default function CreateEmployeeDialog({
         address: '',
         servicePeriod: '',
         dateOfJoiningService: null,
-        degree: ''
+        degree: '',
+        council: '',
+        password: ''
       });
       setPreviewImage(null);
     }
@@ -189,7 +214,7 @@ export default function CreateEmployeeDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-3xl backdrop-blur-xl bg-white/95 max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl backdrop-blur-xl bg-white/95 max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <UserPlus className="w-5 h-5 text-red-900" />
@@ -263,14 +288,13 @@ export default function CreateEmployeeDialog({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address *</Label>
+              <Label htmlFor="email">Email Address (Optional)</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="Enter email address"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                required
                 className="bg-white/50"
               />
             </div>
@@ -317,6 +341,18 @@ export default function CreateEmployeeDialog({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="council">Council Name *</Label>
+              <Input
+                id="council"
+                placeholder="Enter council name"
+                value={formData.council}
+                onChange={(e) => handleInputChange('council', e.target.value)}
+                required
+                className="bg-white/50"
+              />
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="servicePeriod">Service Period *</Label>
               <Input
                 id="servicePeriod"
@@ -327,7 +363,9 @@ export default function CreateEmployeeDialog({
                 className="bg-white/50"
               />
             </div>
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="dateOfJoiningService">Date of Joining Service *</Label>
               <Input
@@ -343,17 +381,54 @@ export default function CreateEmployeeDialog({
                 required
               />
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="degree">Degree (Optional)</Label>
+              <Input
+                id="degree"
+                placeholder="Enter degree if applicable"
+                value={formData.degree}
+                onChange={(e) => handleInputChange('degree', e.target.value)}
+                className="bg-white/50"
+              />
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="degree">Degree (Optional)</Label>
-            <Input
-              id="degree"
-              placeholder="Enter degree if applicable"
-              value={formData.degree}
-              onChange={(e) => handleInputChange('degree', e.target.value)}
-              className="bg-white/50"
-            />
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password *</Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={generatePassword}
+                disabled={!formData.name}
+              >
+                Generate Password
+              </Button>
+            </div>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter password (min 6 characters)"
+                value={formData.password}
+                onChange={(e) => handleInputChange('password', e.target.value)}
+                required
+                minLength={6}
+                className="bg-white/50 pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500">
+              Employee will use their NIC and this password to login
+            </p>
           </div>
 
           <div className="flex justify-end space-x-4 pt-4">

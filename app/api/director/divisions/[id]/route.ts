@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Division from '@/models/Division';
-import Employee from '@/models/Employee';
+import User from '@/models/User';
 
 // Helper function to handle both sync and async params
 async function getParamsId(params: any): Promise<string> {
@@ -13,6 +13,7 @@ async function getParamsId(params: any): Promise<string> {
   }
   return params.id;
 }
+
 // GET single division
 export async function GET(
   request: NextRequest,
@@ -31,9 +32,21 @@ export async function GET(
       _id: id,
       director: user._id
     })
-      .populate('employees', 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService')
-      .populate('headProgramOfficer', 'name email profilePicture')
-      .populate('subProgramOfficer', 'name email profilePicture');
+      .populate({
+        path: 'employees',
+        match: { role: 'employee' },
+        select: 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService council'
+      })
+      .populate({
+        path: 'headProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      })
+      .populate({
+        path: 'subProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      });
 
     if (!division) {
       return NextResponse.json({ error: 'Division not found' }, { status: 404 });
@@ -79,33 +92,57 @@ export async function PUT(
     // Check if name is unique (excluding current division)
     const nameExists = await Division.findOne({
       name: name.trim(),
-      _id: { $ne: params.id }
+      _id: { $ne: id }
     });
 
     if (nameExists) {
       return NextResponse.json({ error: 'Division name already exists' }, { status: 400 });
     }
 
-    // Validate employees belong to this director
+    // Validate employees belong to this director and are employees
     if (employees && employees.length > 0) {
-      const validEmployees = await Employee.find({
+      const validEmployees = await User.find({
         _id: { $in: employees },
-        director: user._id
+        director: user._id,
+        role: 'employee'
       });
 
       if (validEmployees.length !== employees.length) {
-        return NextResponse.json({ error: 'Some employees do not belong to you' }, { status: 400 });
+        return NextResponse.json({ error: 'Some employees do not belong to you or are not employees' }, { status: 400 });
       }
 
       // Remove employees from other divisions (excluding current division)
       await Division.updateMany(
-        { director: user._id, _id: { $ne: params.id } },
+        { director: user._id, _id: { $ne: id } },
         { $pull: { employees: { $in: employees } } }
       );
     }
 
+    // Validate head and sub program officers
+    if (headProgramOfficer) {
+      const validHead = await User.findOne({
+        _id: headProgramOfficer,
+        director: user._id,
+        role: 'employee'
+      });
+      if (!validHead) {
+        return NextResponse.json({ error: 'Head Program Officer not found or invalid' }, { status: 400 });
+      }
+    }
+
+    if (subProgramOfficer) {
+      const validSub = await User.findOne({
+        _id: subProgramOfficer,
+        director: user._id,
+        role: 'employee'
+      });
+      if (!validSub) {
+        return NextResponse.json({ error: 'Sub Program Officer not found or invalid' }, { status: 400 });
+      }
+    }
+
     const updatedDivision = await Division.findByIdAndUpdate(
-      params.id,
+      id,
       {
         name: name.trim(),
         description: description?.trim(),
@@ -115,9 +152,21 @@ export async function PUT(
       },
       { new: true }
     )
-      .populate('employees', 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService')
-      .populate('headProgramOfficer', 'name email profilePicture')
-      .populate('subProgramOfficer', 'name email profilePicture');
+      .populate({
+        path: 'employees',
+        match: { role: 'employee' },
+        select: 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService council'
+      })
+      .populate({
+        path: 'headProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      })
+      .populate({
+        path: 'subProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      });
 
     return NextResponse.json({ division: updatedDivision });
   } catch (error) {
@@ -149,7 +198,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Division not found' }, { status: 404 });
     }
 
-    await Division.findByIdAndDelete(params.id);
+    await Division.findByIdAndDelete(id);
 
     return NextResponse.json({ message: 'Division deleted successfully' });
   } catch (error) {

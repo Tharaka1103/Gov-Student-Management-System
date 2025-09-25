@@ -1,17 +1,25 @@
 export interface User {
   _id: string;
   name: string;
-  email: string;
+  email?: string;
   nic: string;
   mobile: string;
   address: string;
-  password: string;
-  role: 'admin' | 'director' | 'internal_auditor';
+  role: 'admin' | 'director' | 'internal_auditor' | 'employee';
   profilePicture?: string;
   isActive: boolean;
+  managingDepartments?: string[];
+  workshops?: string[];
+  employees?: string[];
+  permissions?: string[];
+  // Employee-specific fields
+  servicePeriod?: string;
+  dateOfJoiningService?: Date;
+  degree?: string;
+  council?: string;
+  director?: string | User;
   createdAt: Date;
   updatedAt: Date;
-  managingDepartments: string[];
 }
 
 export interface Admin extends User {
@@ -31,21 +39,12 @@ export interface InternalAuditor extends User {
   workshops: string[];
 }
 
-export interface Employee {
-  _id: string;
-  name: string;
-  email: string;
-  nic: string;
-  mobile: string;
-  address: string;
+export interface Employee extends User {
+  role: 'employee';
   servicePeriod: string;
   dateOfJoiningService: Date;
-  degree?: string;
-  profilePicture?: string;
-  director: string;
-  isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
+  council: string;
+  director: string | User;
 }
 
 export interface Workshop {
@@ -78,12 +77,14 @@ export interface Student {
 }
 
 export interface LoginCredentials {
+  identifier: string; // email or nic
   email: string;
   password: string;
   rememberMe?: boolean;
 }
 
 export interface AuthResponse {
+  success: boolean;
   user: User;
   token: string;
   message: string;

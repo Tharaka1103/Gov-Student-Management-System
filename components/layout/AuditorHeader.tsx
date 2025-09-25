@@ -57,9 +57,8 @@ export default function AuditorHeader({ user }: AuditorHeaderProps) {
           <Link href="/auditor/dashboard" className="flex items-center space-x-3 group">
             <div className="hidden sm:block">
               <h1 className="text-2xl font-bold text-red-900 group-hover:text-yellow-400 transition-colors duration-200">
-                Auditor Panel
+                Employee Portal
               </h1>
-              <p className="text-sm text-red-900/60 font-medium">Workshop Management</p>
             </div>
           </Link>
         </div>
@@ -90,7 +89,7 @@ export default function AuditorHeader({ user }: AuditorHeaderProps) {
                 <div className="hidden sm:block text-right">
                   <p className="text-sm font-semibold text-red-900">{user.name}</p>
                   <Badge className="text-xs bg-yellow-100 text-red-900 border border-yellow-400 font-bold hover:bg-yellow-200">
-                    Internal Auditor
+                    Employee
                   </Badge>
                 </div>
                 <ChevronDown className="w-4 h-4 text-red-900/60" />

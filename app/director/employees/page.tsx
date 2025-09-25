@@ -76,7 +76,6 @@ export default function EmployeesPage() {
     if (searchTerm) {
       filtered = filtered.filter(employee =>
         employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        employee.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         employee.nic.includes(searchTerm) ||
         (employee.degree && employee.degree.toLowerCase().includes(searchTerm.toLowerCase()))
       );

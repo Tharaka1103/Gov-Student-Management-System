@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Division from '@/models/Division';
-import Employee from '@/models/Employee';
+import User from '@/models/User';
 
 // Helper function to handle both sync and async params
 async function getParamsId(params: any): Promise<string> {
@@ -13,6 +13,7 @@ async function getParamsId(params: any): Promise<string> {
   }
   return params.id;
 }
+
 // ADD employee to division
 export async function POST(
   request: NextRequest,
@@ -44,9 +45,10 @@ export async function POST(
     }
 
     // Check if employee exists and belongs to director
-    const employee = await Employee.findOne({
+    const employee = await User.findOne({
       _id: employeeId,
-      director: user._id
+      director: user._id,
+      role: 'employee'
     });
 
     if (!employee) {
@@ -60,20 +62,32 @@ export async function POST(
 
     // Remove employee from other divisions
     await Division.updateMany(
-      { director: user._id, _id: { $ne: params.id } },
+      { director: user._id, _id: { $ne: id } },
       { $pull: { employees: employeeId } }
     );
 
     // Add employee to current division
     await Division.findByIdAndUpdate(
-      params.id,
+      id,
       { $addToSet: { employees: employeeId } }
     );
 
-    const updatedDivision = await Division.findById(params.id)
-      .populate('employees', 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService')
-      .populate('headProgramOfficer', 'name email profilePicture')
-      .populate('subProgramOfficer', 'name email profilePicture');
+    const updatedDivision = await Division.findById(id)
+      .populate({
+        path: 'employees',
+        match: { role: 'employee' },
+        select: 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService council'
+      })
+      .populate({
+        path: 'headProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      })
+      .populate({
+        path: 'subProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      });
 
     return NextResponse.json({ division: updatedDivision });
   } catch (error) {

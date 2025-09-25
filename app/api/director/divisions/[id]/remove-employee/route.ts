@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Division from '@/models/Division';
+import User from '@/models/User';
 
 // Helper function to handle both sync and async params
 async function getParamsId(params: any): Promise<string> {
@@ -12,6 +13,7 @@ async function getParamsId(params: any): Promise<string> {
   }
   return params.id;
 }
+
 // REMOVE employee from division
 export async function POST(
   request: NextRequest,
@@ -30,8 +32,7 @@ export async function POST(
     }
 
     await dbConnect();
-
-        const id = await getParamsId(params);
+    const id = await getParamsId(params);
 
     // Check if division exists and belongs to director
     const division = await Division.findOne({
@@ -43,24 +44,64 @@ export async function POST(
       return NextResponse.json({ error: 'Division not found' }, { status: 404 });
     }
 
+    // Verify that the employee exists and belongs to this director
+    const employee = await User.findOne({
+      _id: employeeId,
+      director: user._id,
+      role: 'employee'
+    });
+
+    if (!employee) {
+      return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
+    }
+
+    // Check if employee is actually in this division
+    if (!division.employees.includes(employeeId)) {
+      return NextResponse.json({ error: 'Employee is not in this division' }, { status: 400 });
+    }
+
+    // Prepare update operations
+    const updateOperations: any = {
+      $pull: { employees: employeeId }
+    };
+
+    // Remove from officer positions if assigned
+    const unsetOperations: any = {};
+    if (division.headProgramOfficer?.toString() === employeeId) {
+      unsetOperations.headProgramOfficer = 1;
+    }
+    if (division.subProgramOfficer?.toString() === employeeId) {
+      unsetOperations.subProgramOfficer = 1;
+    }
+
+    if (Object.keys(unsetOperations).length > 0) {
+      updateOperations.$unset = unsetOperations;
+    }
+
     // Remove employee from division
-    await Division.findByIdAndUpdate(
-      params.id,
-      { 
-        $pull: { employees: employeeId },
-        $unset: {
-          ...(division.headProgramOfficer?.toString() === employeeId && { headProgramOfficer: 1 }),
-          ...(division.subProgramOfficer?.toString() === employeeId && { subProgramOfficer: 1 })
-        }
-      }
-    );
+    await Division.findByIdAndUpdate(id, updateOperations);
 
-    const updatedDivision = await Division.findById(params.id)
-      .populate('employees', 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService')
-      .populate('headProgramOfficer', 'name email profilePicture')
-      .populate('subProgramOfficer', 'name email profilePicture');
+    const updatedDivision = await Division.findById(id)
+      .populate({
+        path: 'employees',
+        match: { role: 'employee' },
+        select: 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService council'
+      })
+      .populate({
+        path: 'headProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      })
+      .populate({
+        path: 'subProgramOfficer',
+        match: { role: 'employee' },
+        select: 'name email profilePicture'
+      });
 
-    return NextResponse.json({ division: updatedDivision });
+    return NextResponse.json({ 
+      division: updatedDivision,
+      message: 'Employee removed from division successfully'
+    });
   } catch (error) {
     console.error('Remove employee from division error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

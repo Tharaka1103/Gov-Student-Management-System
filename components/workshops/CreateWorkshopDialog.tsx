@@ -103,7 +103,7 @@ export default function CreateWorkshopDialog({
       }
 
       onSuccess(data.workshop);
-      
+
       // Reset form
       setFormData({
         title: '',
@@ -216,51 +216,34 @@ export default function CreateWorkshopDialog({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Start Date *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal bg-white/50"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.startDate ? format(formData.startDate, 'PPP') : 'Select start date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={formData.startDate || undefined}
-                    onSelect={(date) => setFormData(prev => ({ ...prev, startDate: date || null }))}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label htmlFor="startDate">Start Date *</Label>
+              <Input
+                id="startDate"
+                type="date"
+                value={formData.startDate ? format(formData.startDate, 'yyyy-MM-dd') : ''}
+                onChange={(e) => {
+                  const selectedDate = e.target.value ? new Date(e.target.value) : null;
+                  setFormData(prev => ({ ...prev, startDate: selectedDate }));
+                }}
+                className="bg-white/50"
+                required
+              />
             </div>
 
             <div className="space-y-2">
-              <Label>End Date *</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal bg-white/50"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.endDate ? format(formData.endDate, 'PPP') : 'Select end date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={formData.endDate || undefined}
-                    onSelect={(date) => setFormData(prev => ({ ...prev, endDate: date || null }))}
-                    disabled={(date) => date < (formData.startDate || new Date())}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
+              <Label htmlFor="endDate">End Date *</Label>
+              <Input
+                id="endDate"
+                type="date"
+                value={formData.endDate ? format(formData.endDate, 'yyyy-MM-dd') : ''}
+                onChange={(e) => {
+                  const selectedDate = e.target.value ? new Date(e.target.value) : null;
+                  setFormData(prev => ({ ...prev, endDate: selectedDate }));
+                }}
+                min={formData.startDate ? format(formData.startDate, 'yyyy-MM-dd') : undefined}
+                className="bg-white/50"
+                required
+              />
             </div>
           </div>
 

@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
-import Employee from '@/models/Employee';
+import User from '@/models/User';
 import { uploadProfilePicture, validateImageFile } from '@/lib/upload';
 
 // Helper function to handle both sync and async params
 async function getParamsId(params: any): Promise<string> {
-  // Check if params is a Promise (new Next.js) or object (old Next.js)
   if (params && typeof params.then === 'function') {
     const resolvedParams = await params;
     return resolvedParams.id;
@@ -28,10 +27,11 @@ export async function GET(
     const id = await getParamsId(params);
 
     await dbConnect();
-    const employee = await Employee.findOne({
+    const employee = await User.findOne({
       _id: id,
-      director: user._id
-    });
+      director: user._id,
+      role: 'employee'
+    }).select('-password');
 
     if (!employee) {
       return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
@@ -68,17 +68,19 @@ export async function PUT(
     const servicePeriod = formData.get('servicePeriod') as string;
     const dateOfJoiningService = formData.get('dateOfJoiningService') as string;
     const degree = formData.get('degree') as string;
+    const council = formData.get('council') as string;
     const isActive = formData.get('isActive') === 'true';
     const profilePicture = formData.get('profilePicture') as File;
 
-    if (!name || !email || !nic || !mobile || !address || !servicePeriod || !dateOfJoiningService) {
+    if (!name || !nic || !mobile || !address || !servicePeriod || !dateOfJoiningService || !council) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
     // Check if employee exists and belongs to this director
-    const existingEmployee = await Employee.findOne({
+    const existingEmployee = await User.findOne({
       _id: id,
-      director: user._id
+      director: user._id,
+      role: 'employee'
     });
 
     if (!existingEmployee) {
@@ -86,15 +88,17 @@ export async function PUT(
     }
 
     // Check for unique constraints (excluding current employee)
-    const emailExists = await Employee.findOne({
-      email: email.toLowerCase(),
-      _id: { $ne: id }
-    });
-    if (emailExists) {
-      return NextResponse.json({ error: 'Email already exists' }, { status: 400 });
+    if (email) {
+      const emailExists = await User.findOne({
+        email: email.toLowerCase(),
+        _id: { $ne: id }
+      });
+      if (emailExists) {
+        return NextResponse.json({ error: 'Email already exists' }, { status: 400 });
+      }
     }
 
-    const nicExists = await Employee.findOne({
+    const nicExists = await User.findOne({
       nic,
       _id: { $ne: id }
     });
@@ -113,22 +117,29 @@ export async function PUT(
       profilePictureUrl = await uploadProfilePicture(profilePicture, id);
     }
 
-    const updatedEmployee = await Employee.findByIdAndUpdate(
+    const updateData: any = {
+      name: name.trim(),
+      nic: nic.trim(),
+      mobile: mobile.trim(),
+      address: address.trim(),
+      servicePeriod,
+      dateOfJoiningService: new Date(dateOfJoiningService),
+      degree: degree?.trim() || undefined,
+      council: council.trim(),
+      profilePicture: profilePictureUrl,
+      isActive
+    };
+
+    // Only update email if provided
+    if (email) {
+      updateData.email = email.toLowerCase().trim();
+    }
+
+    const updatedEmployee = await User.findByIdAndUpdate(
       id,
-      {
-        name: name.trim(),
-        email: email.toLowerCase().trim(),
-        nic: nic.trim(),
-        mobile: mobile.trim(),
-        address: address.trim(),
-        servicePeriod,
-        dateOfJoiningService: new Date(dateOfJoiningService),
-        degree: degree?.trim() || undefined,
-        profilePicture: profilePictureUrl,
-        isActive
-      },
+      updateData,
       { new: true }
-    );
+    ).select('-password');
 
     return NextResponse.json({ employee: updatedEmployee });
   } catch (error) {
@@ -152,16 +163,17 @@ export async function DELETE(
 
     await dbConnect();
 
-    const employee = await Employee.findOne({
+    const employee = await User.findOne({
       _id: id,
-      director: user._id
+      director: user._id,
+      role: 'employee'
     });
 
     if (!employee) {
       return NextResponse.json({ error: 'Employee not found' }, { status: 404 });
     }
 
-    await Employee.findByIdAndDelete(id);
+    await User.findByIdAndDelete(id);
 
     return NextResponse.json({ message: 'Employee deleted successfully' });
   } catch (error) {

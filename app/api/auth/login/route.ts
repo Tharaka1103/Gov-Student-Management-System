@@ -88,7 +88,7 @@ function getRoleBasedRedirect(role: string): string {
       return '/admin/dashboard';
     case 'director':
       return '/director/dashboard';
-    case 'internal_auditor':
+    case 'employee':
       return '/auditor/dashboard';
     default:
       return '/dashboard';

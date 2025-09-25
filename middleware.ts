@@ -6,8 +6,8 @@ import { verifyTokenEdge } from '@/lib/auth-edge';
 const protectedRoutes = {
   '/admin': ['admin'],
   '/director': ['director'],
-  '/auditor': ['internal_auditor'],
-  '/dashboard': ['admin', 'director', 'internal_auditor']
+  '/auditor': ['employee'],
+  '/dashboard': ['admin', 'director', 'internal_auditor', 'employee']
 };
 
 // Public routes that don't require authentication

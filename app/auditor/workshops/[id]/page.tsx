@@ -111,7 +111,7 @@ export default function WorkshopDetailPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+      <div className="min-h-screen bg-white">
         <AuditorHeader user={user} />
         <main className="container mx-auto px-4 py-8">
           <div className="animate-pulse">
@@ -126,7 +126,7 @@ export default function WorkshopDetailPage() {
 
   if (!workshop) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+      <div className="min-h-screen bg-white">
         <AuditorHeader user={user} />
         <main className="container mx-auto px-4 py-8">
           <Card className="backdrop-blur-xl bg-white/40 border border-white/30">
@@ -152,7 +152,7 @@ export default function WorkshopDetailPage() {
   const progress = getProgress();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
+    <div className="min-h-screen bg-white">
       <AuditorHeader user={user} />
       
       <main className="container mx-auto px-4 py-8">
@@ -198,7 +198,7 @@ export default function WorkshopDetailPage() {
                   </Button>
                 </Link>
                 <Link href={`/auditor/workshops/${workshop._id}/students`}>
-                  <Button className="bg-gradient-to-r from-green-500 to-blue-600">
+                  <Button className="bg-red-900">
                     <UserPlus className="w-4 h-4 mr-2" />
                     Manage Students
                   </Button>
@@ -217,7 +217,7 @@ export default function WorkshopDetailPage() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div 
-                    className="bg-gradient-to-r from-green-500 to-blue-600 h-3 rounded-full transition-all duration-300"
+                    className="bg-red-900 h-3 rounded-full transition-all duration-300"
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
@@ -228,7 +228,7 @@ export default function WorkshopDetailPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Workshop Details */}
-          <Card className="lg:col-span-2 backdrop-blur-xl bg-white/40 border border-white/30">
+          <Card className="lg:col-span-2 backdrop-blur-xl bg-white/40 border border-red-900">
             <CardHeader>
               <CardTitle>Workshop Information</CardTitle>
             </CardHeader>
@@ -270,7 +270,7 @@ export default function WorkshopDetailPage() {
 
           {/* Quick Stats */}
           <div className="space-y-6">
-            <Card className="backdrop-blur-xl bg-white/40 border border-white/30">
+            <Card className="backdrop-blur-xl bg-white/40 border border-red-900">
               <CardHeader>
                 <CardTitle>Quick Stats</CardTitle>
               </CardHeader>
@@ -292,21 +292,17 @@ export default function WorkshopDetailPage() {
               </CardContent>
             </Card>
 
-            <Card className="backdrop-blur-xl bg-white/40 border border-white/30">
+            <Card className="backdrop-blur-xl bg-white/40 border border-red-900">
               <CardHeader>
                 <CardTitle>Actions</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <Link href={`/auditor/workshops/${workshop._id}/students`}>
-                  <Button className="w-full bg-gradient-to-r from-green-500 to-blue-600">
+                  <Button className="w-full bg-red-900 mb-2 hover:bg-red-700">
                     <UserPlus className="w-4 h-4 mr-2" />
                     Manage Students
                   </Button>
                 </Link>
-                <Button variant="outline" className="w-full">
-                  <Download className="w-4 h-4 mr-2" />
-                  Export Report
-                </Button>
                 <Link href={`/auditor/workshops/${workshop._id}/edit`}>
                   <Button variant="outline" className="w-full">
                     <Edit className="w-4 h-4 mr-2" />
@@ -329,7 +325,7 @@ export default function WorkshopDetailPage() {
                 </CardDescription>
               </div>
               <Link href={`/auditor/workshops/${workshop._id}/students`}>
-                <Button>
+                <Button className='bg-red-900'>
                   <UserPlus className="w-4 h-4 mr-2" />
                   Add Student
                 </Button>
@@ -345,21 +341,21 @@ export default function WorkshopDetailPage() {
                   Start building your workshop by adding students.
                 </p>
                 <Link href={`/auditor/workshops/${workshop._id}/students`}>
-                  <Button>
+                  <Button className='bg-red-900'>
                     <UserPlus className="w-4 h-4 mr-2" />
                     Add First Student
                   </Button>
                 </Link>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {workshop.students.map((student, index) => (
-                  <Card key={index} className="bg-white/30 border border-white/30">
+                  <Card key={index} className="bg-white/30 border border-red-900">
                     <CardContent className="p-4">
                       <div className="flex items-center space-x-3">
                         <Avatar>
                           <AvatarImage src={student.profilePicture || ''} alt={student.name} />
-                          <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-600 text-white">
+                          <AvatarFallback className="bg-red-900 text-white">
                             {student.name.split(' ').map(n => n[0]).join('')}
                           </AvatarFallback>
                         </Avatar>

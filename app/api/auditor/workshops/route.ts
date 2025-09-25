@@ -6,7 +6,7 @@ import { getCurrentUser } from '@/lib/auth';
 export async function GET(req: NextRequest) {
   try {
     const currentUser = await getCurrentUser();
-    if (!currentUser || currentUser.role !== 'internal_auditor') {
+    if (!currentUser || currentUser.role !== 'employee') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const currentUser = await getCurrentUser();
-    if (!currentUser || currentUser.role !== 'internal_auditor') {
+    if (!currentUser || currentUser.role !== 'employee') {
       return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
     }
 
@@ -38,13 +38,6 @@ export async function POST(req: NextRequest) {
     if (startDate >= endDate) {
       return NextResponse.json(
         { message: 'End date must be after start date' },
-        { status: 400 }
-      );
-    }
-
-    if (startDate < new Date()) {
-      return NextResponse.json(
-        { message: 'Start date cannot be in the past' },
         { status: 400 }
       );
     }

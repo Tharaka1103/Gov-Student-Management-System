@@ -109,7 +109,7 @@ export default function WorkshopCard({ workshop, onUpdate, onDelete }: WorkshopC
 
   return (
     <>
-      <Card className="backdrop-blur-xl bg-white/40 border border-white/30 hover:bg-white/50 transition-all duration-300 group">
+      <Card className="backdrop-blur-xl bg-yellow-100/40 border border-red-900 hover:bg-yellow-200/50 transition-all duration-300 group">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex-1">

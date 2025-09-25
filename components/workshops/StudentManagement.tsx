@@ -92,7 +92,7 @@ const StudentCard = memo(({
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 border-border/50">
+    <Card className="group hover:shadow-lg transition-all duration-200 border-red-900">
       <CardContent className="p-6">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center gap-3 flex-1">
@@ -625,7 +625,7 @@ export default function StudentManagement({
           <Button 
             onClick={() => setIsAddDialogOpen(true)}
             disabled={students.length >= maxParticipants}
-            className="shrink-0"
+            className="shrink-0 bg-red-900"
           >
             <UserPlus className="h-4 w-4 mr-2" />
             Add Student
@@ -675,7 +675,7 @@ export default function StudentManagement({
               }
             </p>
             {!searchTerm && students.length < maxParticipants && (
-              <Button onClick={() => setIsAddDialogOpen(true)}>
+              <Button onClick={() => setIsAddDialogOpen(true)} className='bg-red-900'>
                 <UserPlus className="h-4 w-4 mr-2" />
                 Add First Student
               </Button>

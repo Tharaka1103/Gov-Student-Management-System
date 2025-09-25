@@ -9,10 +9,13 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    required: function() {
+      return ['admin', 'director', 'internal_auditor'].includes(this.role);
+    },
     unique: true,
     lowercase: true,
-    trim: true
+    trim: true,
+    sparse: true // Allow null values for employees
   },
   nic: {
     type: String,
@@ -48,7 +51,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: true
   },
-  // Role-specific fields
+  // Role-specific fields for director/admin
   managingDepartments: [{
     type: String,
     trim: true
@@ -59,11 +62,42 @@ const userSchema = new mongoose.Schema({
   }],
   employees: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee'
+    ref: 'User'
   }],
   permissions: [{
     type: String
-  }]
+  }],
+  // Employee-specific fields
+  servicePeriod: {
+    type: String,
+    required: function() {
+      return this.role === 'employee';
+    }
+  },
+  dateOfJoiningService: {
+    type: Date,
+    required: function() {
+      return this.role === 'employee';
+    }
+  },
+  degree: {
+    type: String,
+    trim: true
+  },
+  council: {
+    type: String,
+    required: function() {
+      return this.role === 'employee';
+    },
+    trim: true
+  },
+  director: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: function() {
+      return this.role === 'employee';
+    }
+  }
 }, {
   timestamps: true
 });
