@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
       totalDivisionMembers: 0,
       activeDivisionMembers: 0,
       isOfficer: false,
-      officerRole: null,
+      officerRole: '',
       joiningDate: user.dateOfJoiningService,
       servicePeriod: user.servicePeriod,
       council: user.council
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
     if (division) {
       stats.totalDivisionMembers = division.employees ? division.employees.length : 0;
       stats.activeDivisionMembers = division.employees ? 
-        division.employees.filter(emp => emp.isActive).length : 0;
+        division.employees.filter((emp: { isActive: any; }) => emp.isActive).length : 0;
       
       // Check officer roles
       if (division.headProgramOfficer?.toString() === user._id) {
