@@ -69,16 +69,10 @@ const userSchema = new mongoose.Schema({
   }],
   // Employee-specific fields
   servicePeriod: {
-    type: String,
-    required: function() {
-      return this.role === 'employee';
-    }
+    type: String
   },
   dateOfJoiningService: {
-    type: Date,
-    required: function() {
-      return this.role === 'employee';
-    }
+    type: Date
   },
   degree: {
     type: String,
@@ -93,10 +87,7 @@ const userSchema = new mongoose.Schema({
   },
   director: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: function() {
-      return this.role === 'employee';
-    }
+    ref: 'User'
   }
 }, {
   timestamps: true
