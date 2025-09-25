@@ -277,15 +277,6 @@ export default function LoginForm() {
                     )}
                   </Button>
                 </form>
-                
-                <div className="mt-8 text-center">
-                  <p className="text-sm text-gray-600">
-                    Internal Auditor? 
-                    <a href="/register" className="ml-1 text-red-900 hover:text-red-700 font-semibold transition-colors">
-                      Register here
-                    </a>
-                  </p>
-                </div>
               </CardContent>
             </Card>
 

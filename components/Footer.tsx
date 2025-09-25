@@ -190,38 +190,6 @@ export default function Footer() {
           </motion.div>
         </motion.div>
 
-        {/* Developer Credits */}
-        <motion.div 
-          className="border-t border-red-950 mt-8 pt-6"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5, duration: 0.5 }}
-        >
-          <div className="text-center mb-6">
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ duration: 0.2 }}
-            >
-              <a 
-                href="#" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center space-x-3 bg-transparent hover:bg-red-800 rounded-xl px-6 py-3 transition-all duration-300 group"
-              >
-                <div className="flex items-center space-x-2">
-                  <Heart className="w-4 h-4 text-yellow-300 group-hover:animate-pulse" />
-                  <span className="text-sm text-red-100">Developed with passion by</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-lg font-bold text-white">Akila | Dilshan</span>
-                  <ExternalLink className="w-4 h-4 text-yellow-300 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </a>
-            </motion.div>
-          </div>
-        </motion.div>
-
         {/* Bottom Bar */}
         <motion.div 
           className="border-t border-red-950 pt-8"

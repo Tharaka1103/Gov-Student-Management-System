@@ -193,9 +193,8 @@ export default function Header() {
               >
                 <Link href="/login">
                   <Button 
-                    variant="outline" 
                     size="lg" 
-                    className="border-2 border-red-900 text-red-900 hover:bg-red-50 hover:border-red-800 rounded-xl px-6 py-3 font-medium transition-all duration-300"
+                    className="bg-red-900 text-white px-6 py-3 font-medium transition-all duration-300"
                   >
                     <Shield className="w-5 h-5 mr-2" />
                     Sign In
@@ -203,20 +202,6 @@ export default function Header() {
                 </Link>
               </motion.div>
               
-              <motion.div 
-                whileHover={{ scale: 1.05 }} 
-                whileTap={{ scale: 0.95 }}
-              >
-                <Link href="/register">
-                  <Button 
-                    size="lg" 
-                    className="bg-red-900 hover:bg-red-800 text-white rounded-xl px-6 py-3 font-medium shadow-lg hover:shadow-xl transition-all duration-300"
-                  >
-                    <UserCheck className="w-5 h-5 mr-2" />
-                    Register
-                  </Button>
-                </Link>
-              </motion.div>
             </div>
 
             {/* Mobile Menu Button */}
@@ -271,24 +256,11 @@ export default function Header() {
                   <motion.div variants={mobileItemVariants}>
                     <Link href="/login" onClick={() => setIsMenuOpen(false)}>
                       <Button 
-                        variant="outline" 
                         size="lg" 
-                        className="w-full justify-start border-2 border-red-900 text-red-900 hover:bg-red-50 rounded-xl py-4 text-base font-medium"
+                    className="bg-red-900 text-white px-6 py-3 font-medium transition-all duration-300"
                       >
                         <Shield className="w-5 h-5 mr-3" />
                         Sign In
-                      </Button>
-                    </Link>
-                  </motion.div>
-                  
-                  <motion.div variants={mobileItemVariants}>
-                    <Link href="/register" onClick={() => setIsMenuOpen(false)}>
-                      <Button 
-                        size="lg" 
-                        className="w-full justify-start bg-red-900 hover:bg-red-800 text-white rounded-xl py-4 text-base font-medium shadow-lg"
-                      >
-                        <UserCheck className="w-5 h-5 mr-3" />
-                        Register Now
                       </Button>
                     </Link>
                   </motion.div>

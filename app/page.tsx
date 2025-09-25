@@ -372,7 +372,7 @@ export default function Home() {
                 className="flex flex-col sm:flex-row gap-6 justify-center items-center pt-8"
               >
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button size="lg" className="bg-red-900 hover:bg-red-800 text-white px-10 py-6 text-lg rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">
+                  <Button size="lg" className="bg-red-900 hover:bg-red-800 text-white px-10 py-6 text-lg shadow-lg hover:shadow-xl transition-all duration-300">
                     <GraduationCap className="w-6 h-6 mr-3" />
                     Start Learning Today
                     <ArrowRight className="w-5 h-5 ml-2" />
@@ -380,7 +380,7 @@ export default function Home() {
                 </motion.div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <Button size="lg" variant="outline" className="border-2 border-red-900 text-red-900 hover:bg-red-50 px-10 py-6 text-lg rounded-xl transition-all duration-300">
+                  <Button size="lg" variant="outline" className="border-2 border-red-900 text-red-900 hover:bg-red-50 px-10 py-6 text-lg transition-all duration-300">
                     <Play className="w-5 h-5 mr-2" />
                     Watch Overview
                   </Button>
@@ -605,7 +605,7 @@ export default function Home() {
                       ))}
                     </div>
                     <Link href="/login">
-                      <Button className="w-full bg-red-900 hover:bg-red-800 text-lg py-6 rounded-xl">
+                      <Button className="w-full bg-red-900 hover:bg-red-800 text-lg py-6">
                         <Shield className="w-5 h-5 mr-2" />
                         Admin Login
                       </Button>
@@ -645,7 +645,7 @@ export default function Home() {
                       ))}
                     </div>
                     <Link href="/login">
-                      <Button className="w-full bg-red-900 hover:bg-red-800 text-lg py-6 rounded-xl">
+                      <Button className="w-full bg-red-900 hover:bg-red-800 text-lg py-6">
                         <Building2 className="w-5 h-5 mr-2" />
                         Director Login
                       </Button>
@@ -685,7 +685,7 @@ export default function Home() {
                       ))}
                     </div>
                     <Link href="/register">
-                      <Button className="w-full bg-red-900 hover:bg-red-800 text-lg py-6 rounded-xl">
+                      <Button className="w-full bg-red-900 hover:bg-red-800 text-lg py-6">
                         <GraduationCap className="w-5 h-5 mr-2" />
                         Register Now
                       </Button>
