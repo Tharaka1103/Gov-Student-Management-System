@@ -86,18 +86,18 @@ export default function EmployeeCard({ employee, onUpdate, onDelete }: EmployeeC
 
   return (
     <>
-      <Card className="backdrop-blur-xl bg-white/40 border border-white/30 hover:bg-white/50 transition-all duration-300 group">
+      <Card className="backdrop-blur-xl bg-white/40 border border-red-900 hover:bg-white/50 transition-all duration-300 group">
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-4">
               <Avatar className="w-16 h-16">
                 <AvatarImage src={employee.profilePicture || ''} alt={employee.name} />
-                <AvatarFallback className="bg-blue-500 text-white text-lg">
+                <AvatarFallback className="bg-red-900 text-white text-lg">
                   {employee.name.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <CardTitle className="text-lg font-semibold group-hover:text-blue-600 transition-colors">
+                <CardTitle className="text-lg font-semibold group-hover:text-red-900 transition-colors">
                   {employee.name}
                 </CardTitle>
                 <div className="flex items-center space-x-2 mt-1">
@@ -177,7 +177,7 @@ export default function EmployeeCard({ employee, onUpdate, onDelete }: EmployeeC
               View
             </Button>
             <Link href={`/director/employees/${employee._id}/edit`} className="flex-1">
-              <Button size="sm" className="w-full bg-blue-500">
+              <Button size="sm" className="w-full bg-red-900">
                 <Edit className="w-4 h-4 mr-1" />
                 Edit
               </Button>

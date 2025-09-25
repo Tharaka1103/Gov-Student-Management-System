@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { User, Director } from '@/types';
+import LoadingIndicator from '@/components/LoadingIndicator ';
 
 export default function DirectorsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -107,7 +108,11 @@ export default function DirectorsPage() {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div><LoadingIndicator
+        isVisible={isLoading}
+        variant="minimal"
+        showBackdrop={false}
+      /></div>;
   }
 
   const getDirectorStats = () => {

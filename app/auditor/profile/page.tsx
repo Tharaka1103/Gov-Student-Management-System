@@ -223,10 +223,6 @@ export default function EmployeeProfilePage() {
                     <span>NIC: {employee.nic}</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <Building className="w-4 h-4 mr-2" />
-                    <span>Council: {employee.council}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2" />
                     <span>Joined: {formatDate(employee.dateOfJoiningService)}</span>
                   </div>
@@ -452,13 +448,6 @@ export default function EmployeeProfilePage() {
                           <span className="text-sm font-medium">NIC Number:</span>
                         </div>
                         <p className="text-gray-900 font-mono font-bold">{employee.nic}</p>
-                      </div>
-                      <div>
-                        <div className="flex items-center text-gray-600 mb-2">
-                          <Building className="w-4 h-4 mr-2 text-indigo-500" />
-                          <span className="text-sm font-medium">Council:</span>
-                        </div>
-                        <p className="text-gray-900 font-medium">{employee.council}</p>
                       </div>
                       <div>
                         <div className="flex items-center text-gray-600 mb-2">

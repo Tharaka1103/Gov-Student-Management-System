@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import AuditorHeader from '@/components/layout/AuditorHeader';
+import EmployeeFooter from '@/components/layout/EmployeeFooter';
 import WorkshopCard from '@/components/workshops/WorkshopCard';
 import CreateWorkshopDialog from '@/components/workshops/CreateWorkshopDialog';
 import {
@@ -20,6 +21,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { User, Workshop } from '@/types';
+import LoadingIndicator from '@/components/LoadingIndicator ';
 
 export default function WorkshopsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -113,7 +115,11 @@ export default function WorkshopsPage() {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div><LoadingIndicator
+        isVisible={isLoading}
+        variant="minimal"
+        showBackdrop={false}
+      /></div>;
   }
 
   const statusOptions = [
@@ -209,7 +215,7 @@ export default function WorkshopsPage() {
                   />
                 </div>
               </div>
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-col md:flex-row">
                 {statusOptions.map((option) => (
                   <Button
                     key={option.value}
@@ -284,6 +290,7 @@ export default function WorkshopsPage() {
           auditorId={user._id}
         />
       </main>
+      <EmployeeFooter/>
     </div>
   );
 }

@@ -17,7 +17,7 @@ export async function DELETE(
     }
 
     await dbConnect();
-    
+
     const { id: workshopId, studentId } = await params;
 
     const workshop = await Workshop.findById(workshopId);
@@ -55,7 +55,7 @@ export async function DELETE(
 
     // Remove student from array
     workshop.students.splice(studentIndex, 1);
-    
+
     // Save the workshop
     await workshop.save();
 
@@ -85,7 +85,7 @@ export async function GET(
     }
 
     await dbConnect();
-    
+
     const { id: workshopId, studentId } = await params;
 
     const workshop = await Workshop.findById(workshopId);
@@ -128,7 +128,7 @@ export async function PUT(
     }
 
     await dbConnect();
-    
+
     const { id: workshopId, studentId } = await params;
     const formData = await req.formData();
 
@@ -138,7 +138,7 @@ export async function PUT(
       email: formData.get('email') as string,
       nic: formData.get('nic') as string,
       mobile: formData.get('mobile') as string,
-      address: formData.get('address') as string,
+      council: formData.get('council') as string,
     };
 
     const workshop = await Workshop.findById(workshopId);
@@ -203,8 +203,8 @@ export async function PUT(
     workshop.students[studentIndex].name = updatedData.name;
     workshop.students[studentIndex].email = updatedData.email;
     workshop.students[studentIndex].nic = updatedData.nic;
+    workshop.students[studentIndex].council = updatedData.council;
     workshop.students[studentIndex].mobile = updatedData.mobile;
-    workshop.students[studentIndex].address = updatedData.address;
     workshop.students[studentIndex].profilePicture = profilePictureUrl;
 
     // Use markModified to ensure Mongoose tracks the changes

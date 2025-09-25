@@ -44,11 +44,10 @@ export async function POST(req: NextRequest) {
     const servicePeriod = formData.get('servicePeriod') as string;
     const dateOfJoiningService = formData.get('dateOfJoiningService') as string;
     const degree = formData.get('degree') as string;
-    const council = formData.get('council') as string;
     const password = formData.get('password') as string;
 
     // Validate required fields
-    if (!name || !nic || !mobile || !address || !servicePeriod || !dateOfJoiningService || !council || !password) {
+    if (!name || !nic || !mobile || !address || !servicePeriod || !dateOfJoiningService || !password) {
       return NextResponse.json(
         { message: 'All required fields must be provided' },
         { status: 400 }
@@ -104,7 +103,6 @@ export async function POST(req: NextRequest) {
       servicePeriod: servicePeriod.trim(),
       dateOfJoiningService: new Date(dateOfJoiningService),
       degree: degree?.trim() || undefined,
-      council: council.trim(),
       director: currentUser._id,
       profilePicture: profilePicturePath,
       isActive: true

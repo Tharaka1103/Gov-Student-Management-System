@@ -25,8 +25,8 @@ export async function POST(
       name: formData.get('name') as string,
       email: formData.get('email') as string,
       nic: formData.get('nic') as string,
+      council: formData.get('council') as string,
       mobile: formData.get('mobile') as string,
-      address: formData.get('address') as string,
     };
 
     // Handle profile picture upload

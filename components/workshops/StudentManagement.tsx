@@ -48,7 +48,8 @@ import {
   Upload,
   X,
   Users,
-  Loader2
+  Loader2,
+  Building
 } from 'lucide-react';
 import { Student } from '@/types';
 import { toast } from 'sonner';
@@ -66,9 +67,9 @@ interface StudentManagementProps {
 interface StudentFormData {
   name: string;
   email: string;
+  council: string;
   nic: string;
   mobile: string;
-  address: string;
   profilePicture?: File;
 }
 
@@ -84,113 +85,128 @@ const StudentCard = memo(({
 }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'enrolled': return 'bg-primary/10 text-primary border-primary/20';
-      case 'completed': return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'enrolled': return 'bg-blue-50 text-blue-700 border-blue-200';
+      case 'completed': return 'bg-green-50 text-green-700 border-green-200';
       case 'dropped': return 'bg-red-50 text-red-700 border-red-200';
-      default: return 'bg-secondary/10 text-secondary border-secondary/20';
+      default: return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-200 border-red-900">
-      <CardContent className="p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center gap-3 flex-1">
-            <Avatar className="h-12 w-12 border-2 border-border">
-              <AvatarImage src={student.profilePicture || ''} alt={student.name} />
-              <AvatarFallback className="bg-primary/10 text-primary font-medium">
-                {student.name.split(' ').map(n => n[0]).join('').toUpperCase()}
-              </AvatarFallback>
-            </Avatar>
-            <div className="flex-1 min-w-0">
-              <h3 className="font-semibold text-foreground truncate">
-                {student.name}
-              </h3>
-              <p className="text-sm text-muted-foreground font-mono">
-                {student.enrollmentNumber}
-              </p>
-              <Badge className={`mt-1 text-xs ${getStatusColor(student.status)}`}>
-                {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
+    <Card className="group hover:shadow-lg transition-all duration-200 border-l-4 border-red-900 hover:scale-105">
+  <CardContent className="p-3 sm:p-4 md:p-6">
+    <div className="flex items-start justify-between mb-3 sm:mb-4">
+      <div className="flex items-start gap-2 sm:gap-3 flex-1 min-w-0">
+        <Avatar className="h-10 w-10 sm:h-12 sm:w-12 md:h-14 md:w-14 border-2 border-red-900 shadow-md flex-shrink-0">
+          <AvatarImage src={student.profilePicture || ''} alt={student.name} />
+          <AvatarFallback className="bg-yellow-400/60 text-black font-medium text-xs sm:text-sm md:text-lg">
+            {student.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+          </AvatarFallback>
+        </Avatar>
+        <div className="flex-1 min-w-0 max-w-full">
+          <h3 className="font-semibold text-gray-900 text-sm sm:text-base md:text-lg break-words leading-tight max-w-full">
+            {student.name}
+          </h3>
+          <p className="text-xs sm:text-sm text-gray-600 font-mono mb-1 break-all">
+            {student.enrollmentNumber}
+          </p>
+          <div className="flex flex-wrap gap-1 sm:gap-2">
+            <Badge className={`text-xs ${getStatusColor(student.status)}`}>
+              {student.status.charAt(0).toUpperCase() + student.status.slice(1)}
+            </Badge>
+            {student.council && (
+              <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
+                <Building className="w-2 h-2 sm:w-3 sm:h-3 mr-1 flex-shrink-0" />
+                <span className="break-words">{student.council}</span>
               </Badge>
-            </div>
+            )}
           </div>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+        </div>
+      </div>
+      
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            className="transition-opacity h-6 w-6 sm:h-8 sm:w-8 p-0 bg-yellow-200 rounded-xs flex-shrink-0 ml-2"
+          >
+            <MoreHorizontal className="h-3 w-3 sm:h-4 sm:w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-32 sm:w-40">
+          <DropdownMenuItem onClick={() => onEdit(student)} className="cursor-pointer text-xs sm:text-sm bg-yellow-200 hover:bg-yellow-400">
+            <Edit3 className="h-3 w-3 sm:h-4 sm:w-4 mr-2" />
+            Edit
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <DropdownMenuItem 
+                className="text-white bg-red-500 hover:bg-red-700 cursor-pointer text-xs sm:text-sm"
+                onSelect={(e) => e.preventDefault()}
               >
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem onClick={() => onEdit(student)} className="cursor-pointer">
-                <Edit3 className="h-4 w-4 mr-2" />
-                Edit
+                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-white" />
+                Remove
               </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <DropdownMenuItem 
-                    className="text-destructive focus:text-destructive cursor-pointer"
-                    onSelect={(e) => e.preventDefault()}
-                  >
-                    <Trash2 className="h-4 w-4 mr-2" />
-                    Remove
-                  </DropdownMenuItem>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Remove Student</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Are you sure you want to remove <strong>{student.name}</strong> from this workshop? 
-                      This action cannot be undone.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() => onDelete(student._id || '', student.name)}
-                      className="bg-destructive hover:bg-destructive/90"
-                    >
-                      Remove
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="w-[90%] sm:w-full max-w-md">
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-base sm:text-lg">Remove Student</AlertDialogTitle>
+                <AlertDialogDescription className="text-sm">
+                  Are you sure you want to remove <strong className="break-words">{student.name}</strong> from this workshop? 
+                  This action cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+                <AlertDialogCancel className="text-sm">Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => onDelete(student._id || '', student.name)}
+                  className="bg-red-600 hover:bg-red-700 text-sm"
+                >
+                  Remove
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
 
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Mail className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="truncate">{student.email}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Phone className="h-3.5 w-3.5 flex-shrink-0" />
-            <span>{student.mobile}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <CreditCard className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="font-mono">{student.nic}</span>
-          </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="truncate">{student.address}</span>
-          </div>
+    <div className="space-y-2 sm:space-y-3 border-t border-red-900">
+      {student.email && (
+        <div className="flex items-start mt-2 sm:mt-3 gap-2 text-xs sm:text-sm text-gray-600">
+          <Mail className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 text-blue-500 mt-0.5" />
+          <span className="break-words min-w-0 flex-1">{student.email}</span>
         </div>
+      )}
+      
+      <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-600">
+        <Phone className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 text-green-500 mt-0.5" />
+        <span className="break-words min-w-0 flex-1">{student.mobile}</span>
+      </div>
+      
+      <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-600">
+        <CreditCard className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 text-purple-500 mt-0.5" />
+        <span className="font-mono break-all min-w-0 flex-1">{student.nic}</span>
+      </div>
 
-        <div className="mt-4 pt-4 border-t border-border">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <Calendar className="h-3 w-3" />
-            <span>Enrolled {new Date(student.enrollmentDate).toLocaleDateString()}</span>
-          </div>
+      {student.council && (
+        <div className="flex items-start gap-2 text-xs sm:text-sm text-gray-600">
+          <Building className="h-3 w-3 sm:h-4 sm:w-4 flex-shrink-0 text-orange-500 mt-0.5" />
+          <span className="break-words min-w-0 flex-1">{student.council}</span>
         </div>
-      </CardContent>
-    </Card>
+      )}
+    </div>
+
+    <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-red-900">
+      <div className="flex items-center gap-1 sm:gap-2 text-xs text-gray-500">
+        <Calendar className="h-2.5 w-2.5 sm:h-3 sm:w-3 flex-shrink-0" />
+        <span className="break-words">Enrolled {new Date(student.enrollmentDate).toLocaleDateString()}</span>
+      </div>
+    </div>
+  </CardContent>
+</Card>
   );
 });
 
@@ -255,9 +271,10 @@ const StudentForm = memo(({
 
   return (
     <Dialog open={isOpen} onOpenChange={!isLoading ? onClose : undefined}>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-xl">
+          <DialogTitle className="text-xl flex items-center gap-2">
+            <UserPlus className="w-5 h-5 text-blue-600" />
             {isEdit ? 'Edit Student' : 'Add New Student'}
           </DialogTitle>
           <DialogDescription>
@@ -276,7 +293,7 @@ const StudentForm = memo(({
               <div className="relative">
                 {previewImage ? (
                   <div className="relative">
-                    <Avatar className="h-16 w-16 border-2 border-border">
+                    <Avatar className="h-16 w-16 border-2 border-gray-200">
                       <AvatarImage src={previewImage} alt="Preview" />
                     </Avatar>
                     <Button
@@ -291,20 +308,20 @@ const StudentForm = memo(({
                     </Button>
                   </div>
                 ) : (
-                  <div className="h-16 w-16 border-2 border-dashed border-border rounded-full flex items-center justify-center bg-muted/30">
-                    <Upload className="h-6 w-6 text-muted-foreground" />
+                  <div className="h-16 w-16 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center bg-gray-50">
+                    <Upload className="h-6 w-6 text-gray-400" />
                   </div>
                 )}
               </div>
-              <div className="flex-1">
+              <div className="flex-1 cursor-pointer">
                 <Input
                   type="file"
                   accept="image/*"
                   onChange={handleFileChange}
                   disabled={isLoading}
-                  className="file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:bg-primary file:text-primary-foreground file:text-sm hover:file:bg-primary/90"
+                  className="file:mr-4 file:py-1 file:px-4 file:rounded-full file:border-0 file:bg-yellow-400/70 file:text-black file:text-sm hover:file:bg-yellow-400 cursor-pointer"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-gray-500 mt-1">
                   Optional. Max 5MB. JPEG, PNG, WebP only.
                 </p>
               </div>
@@ -314,7 +331,8 @@ const StudentForm = memo(({
           {/* Form Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="name" className="text-sm font-medium">
+              <Label htmlFor="name" className="text-sm font-medium flex items-center gap-2">
+                <Users className="w-4 h-4 text-blue-500" />
                 Full Name *
               </Label>
               <Input
@@ -324,29 +342,30 @@ const StudentForm = memo(({
                 onChange={(e) => handleInputChange('name', e.target.value)}
                 required
                 disabled={isLoading}
-                className="focus:ring-primary"
+                className="focus:ring-blue-500 bg-white/50"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Email Address *
+              <Label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
+                <Mail className="w-4 h-4 text-green-500" />
+                Email Address
               </Label>
               <Input
                 id="email"
                 type="email"
-                placeholder="Enter email address"
+                placeholder="Enter email address (optional)"
                 value={formData.email}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                required
                 disabled={isLoading}
-                className="focus:ring-primary"
+                className="focus:ring-blue-500 bg-white/50"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="nic" className="text-sm font-medium">
+              <Label htmlFor="nic" className="text-sm font-medium flex items-center gap-2">
+                <CreditCard className="w-4 h-4 text-purple-500" />
                 NIC Number *
               </Label>
               <Input
@@ -356,11 +375,12 @@ const StudentForm = memo(({
                 onChange={(e) => handleInputChange('nic', e.target.value)}
                 required
                 disabled={isLoading}
-                className="focus:ring-primary font-mono"
+                className="focus:ring-blue-500 font-mono bg-white/50"
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="mobile" className="text-sm font-medium">
+              <Label htmlFor="mobile" className="text-sm font-medium flex items-center gap-2">
+                <Phone className="w-4 h-4 text-green-500" />
                 Mobile Number *
               </Label>
               <Input
@@ -370,39 +390,41 @@ const StudentForm = memo(({
                 onChange={(e) => handleInputChange('mobile', e.target.value)}
                 required
                 disabled={isLoading}
-                className="focus:ring-primary"
+                className="focus:ring-blue-500 bg-white/50"
               />
             </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="address" className="text-sm font-medium">
-              Address *
+            <Label htmlFor="council" className="text-sm font-medium flex items-center gap-2">
+              <Building className="w-4 h-4 text-orange-500" />
+              Urban Councils Name / Regional Councils Name / Municipal Councils Name *
             </Label>
-            <Textarea
-              id="address"
-              placeholder="Enter full address"
-              value={formData.address}
-              onChange={(e) => handleInputChange('address', e.target.value)}
+            <Input
+              id="council"
+              placeholder="Enter council name"
+              value={formData.council}
               required
+              onChange={(e) => handleInputChange('council', e.target.value)}
               disabled={isLoading}
-              className="focus:ring-primary min-h-[80px] resize-none"
+              className="focus:ring-blue-500 bg-white/50"
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-border">
+          <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
             <Button 
               type="button" 
               variant="outline" 
               onClick={onClose}
               disabled={isLoading}
+              className="min-w-[100px]"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={isLoading}
-              className="min-w-[100px]"
+              className="min-w-[120px] bg-red-900 text-white"
             >
               {isLoading ? (
                 <>
@@ -442,17 +464,17 @@ export default function StudentManagement({
   const [addFormData, setAddFormData] = useState<StudentFormData>({
     name: '',
     email: '',
+    council: '',
     nic: '',
     mobile: '',
-    address: ''
   });
 
   const [editFormData, setEditFormData] = useState<StudentFormData>({
     name: '',
     email: '',
+    council: '',
     nic: '',
     mobile: '',
-    address: ''
   });
 
   const [addPreviewImage, setAddPreviewImage] = useState<string | null>(null);
@@ -460,19 +482,20 @@ export default function StudentManagement({
 
   const filteredStudents = students.filter(student =>
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.nic.includes(searchTerm) ||
-    student.enrollmentNumber.toLowerCase().includes(searchTerm.toLowerCase())
+    student.enrollmentNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.council?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const openEditDialog = useCallback((student: Student) => {
     setEditingStudent(student);
     setEditFormData({
       name: student.name,
-      email: student.email,
+      email: student.email || '',
+      council: student.council || '',
       nic: student.nic,
       mobile: student.mobile,
-      address: student.address
     });
     setEditPreviewImage(student.profilePicture || null);
     setIsEditDialogOpen(true);
@@ -481,7 +504,7 @@ export default function StudentManagement({
   const closeAddDialog = useCallback(() => {
     if (!isLoading) {
       setIsAddDialogOpen(false);
-      setAddFormData({ name: '', email: '', nic: '', mobile: '', address: '' });
+      setAddFormData({ name: '', email: '', council: '', nic: '', mobile: '' });
       setAddPreviewImage(null);
     }
   }, [isLoading]);
@@ -489,7 +512,7 @@ export default function StudentManagement({
   const closeEditDialog = useCallback(() => {
     if (!isLoading) {
       setIsEditDialogOpen(false);
-      setEditFormData({ name: '', email: '', nic: '', mobile: '', address: '' });
+      setEditFormData({ name: '', email: '', council: '', nic: '', mobile: '' });
       setEditPreviewImage(null);
       setEditingStudent(null);
     }
@@ -528,7 +551,7 @@ export default function StudentManagement({
 
       onStudentAdded(data.student);
       closeAddDialog();
-      toast.success('Student added successfully!');
+      toast.success('Student added successfully! 🎉');
 
     } catch (error: any) {
       toast.error('Failed to add student', {
@@ -569,7 +592,7 @@ export default function StudentManagement({
 
       onStudentUpdated(data.student);
       closeEditDialog();
-      toast.success('Student updated successfully!');
+      toast.success('Student updated successfully! ✨');
 
     } catch (error: any) {
       toast.error('Failed to update student', {
@@ -602,80 +625,111 @@ export default function StudentManagement({
   }, [workshopId, onStudentRemoved]);
 
   const capacityPercentage = Math.round((students.length / maxParticipants) * 100);
+  const councilStats = students.reduce((acc, student) => {
+    if (student.council) {
+      acc[student.council] = (acc[student.council] || 0) + 1;
+    }
+    return acc;
+  }, {} as Record<string, number>);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header Section */}
-      <div className="border-b border-border pb-6">
+      <div className="border-b border-gray-200 pb-6">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-          <div className="space-y-1">
-            <h2 className="text-2xl font-bold tracking-tight">Student Management</h2>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
+          <div className="space-y-2">
+            <h2 className="text-3xl font-bold tracking-tight text-gray-900">Student Management</h2>
+            <div className="flex items-center gap-6 text-sm text-gray-600">
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
+                <Users className="h-4 w-4 text-blue-500" />
                 <span>{students.length} of {maxParticipants} students enrolled</span>
               </div>
               <div className="hidden sm:block">•</div>
               <div className="hidden sm:block">
                 {capacityPercentage}% capacity used
               </div>
+              {Object.keys(councilStats).length > 0 && (
+                <>
+                  <div className="hidden sm:block">•</div>
+                  <div className="hidden sm:block">
+                    {Object.keys(councilStats).length} councils represented
+                  </div>
+                </>
+              )}
             </div>
           </div>
           
           <Button 
             onClick={() => setIsAddDialogOpen(true)}
             disabled={students.length >= maxParticipants}
-            className="shrink-0 bg-red-900"
+            className="shrink-0 bg-red-900 text-white shadow-lg"
           >
             <UserPlus className="h-4 w-4 mr-2" />
             Add Student
           </Button>
         </div>
 
-        {/* Progress Bar */}
-        <div className="mt-4">
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
-            <span>Workshop Capacity</span>
-            <span>{capacityPercentage}%</span>
+        {/* Progress Bar and Stats */}
+        <div className="mt-6 space-y-4">
+          <div>
+            <div className="flex items-center justify-between text-xs text-gray-600 mb-2">
+              <span>Workshop Capacity</span>
+              <span>{capacityPercentage}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div 
+                className="bg-yellow-400 h-3 rounded-full transition-all duration-500 shadow-sm"
+                style={{ width: `${capacityPercentage}%` }}
+              />
+            </div>
           </div>
-          <div className="w-full bg-secondary/30 rounded-full h-2">
-            <div 
-              className="bg-primary h-2 rounded-full transition-all duration-300"
-              style={{ width: `${capacityPercentage}%` }}
-            />
-          </div>
+
+          {/* Council Distribution */}
+          {Object.keys(councilStats).length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <span className="text-sm font-medium text-gray-700">Councils:</span>
+              {Object.entries(councilStats).map(([council, count]) => (
+                <Badge key={council} variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+                  {council} ({count})
+                </Badge>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
       {/* Search Section */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input
-          placeholder="Search students by name, email, NIC, or enrollment number..."
+          placeholder="Search students by name, email, NIC, council, or enrollment number..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
+          className="pl-10 bg-white/50 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
         />
       </div>
 
       {/* Students Grid */}
       {filteredStudents.length === 0 ? (
-        <Card className="border-dashed">
+        <Card className="border-dashed border-2 border-gray-300">
           <CardContent className="flex flex-col items-center justify-center py-16 text-center">
-            <div className="rounded-full bg-muted/30 p-4 mb-4">
-              <Users className="h-8 w-8 text-muted-foreground" />
+            <div className="rounded-full bg-blue-50 p-6 mb-6">
+              <Users className="h-12 w-12 text-blue-500" />
             </div>
-            <h3 className="text-lg font-semibold mb-2">
+            <h3 className="text-xl font-semibold mb-3 text-gray-900">
               {searchTerm ? 'No students found' : 'No students enrolled yet'}
             </h3>
-            <p className="text-muted-foreground mb-6 max-w-md">
+            <p className="text-gray-600 mb-8 max-w-md leading-relaxed">
               {searchTerm 
                 ? 'Try adjusting your search criteria to find the student you\'re looking for.'
                 : 'Get started by adding your first student to this workshop.'
               }
             </p>
             {!searchTerm && students.length < maxParticipants && (
-              <Button onClick={() => setIsAddDialogOpen(true)} className='bg-red-900'>
+              <Button 
+                onClick={() => setIsAddDialogOpen(true)} 
+                className='bg-red-900 text-white shadow-lg'
+              >
                 <UserPlus className="h-4 w-4 mr-2" />
                 Add First Student
               </Button>
@@ -683,7 +737,7 @@ export default function StudentManagement({
           </CardContent>
         </Card>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {filteredStudents.map((student) => (
             <StudentCard
               key={student._id || `student-${students.indexOf(student)}`}

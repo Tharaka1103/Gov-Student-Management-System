@@ -16,7 +16,6 @@ export interface User {
   servicePeriod?: string;
   dateOfJoiningService?: Date;
   degree?: string;
-  council?: string;
   director?: string | User;
   createdAt: Date;
   updatedAt: Date;
@@ -43,7 +42,6 @@ export interface Employee extends User {
   role: 'employee';
   servicePeriod: string;
   dateOfJoiningService: Date;
-  council: string;
   director: string | User;
 }
 
@@ -69,6 +67,7 @@ export interface Student {
   nic: string;
   mobile: string;
   address: string;
+  council: string;
   enrollmentNumber: string;
   profilePicture?: string;
   workshop: string;

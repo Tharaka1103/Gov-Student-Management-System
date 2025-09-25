@@ -85,7 +85,7 @@ export async function POST(
       .populate({
         path: 'employees',
         match: { role: 'employee' },
-        select: 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService council'
+        select: 'name email profilePicture isActive mobile nic degree servicePeriod dateOfJoiningService'
       })
       .populate({
         path: 'headProgramOfficer',

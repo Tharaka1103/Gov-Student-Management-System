@@ -20,17 +20,17 @@ export async function GET(request: NextRequest) {
       .populate({
         path: 'employees',
         match: { role: 'employee' },
-        select: 'name email profilePicture isActive council degree servicePeriod'
+        select: 'name email profilePicture isActive degree servicePeriod'
       })
       .populate({
         path: 'headProgramOfficer',
         match: { role: 'employee' },
-        select: 'name email profilePicture council'
+        select: 'name email profilePicture'
       })
       .populate({
         path: 'subProgramOfficer',
         match: { role: 'employee' },
-        select: 'name email profilePicture council'
+        select: 'name email profilePicture'
       })
       .populate({
         path: 'director',

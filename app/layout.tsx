@@ -199,15 +199,77 @@ export default function RootLayout({
           
           {/* Loading Indicator for Better UX */}
           <div id="loading-indicator" className="hidden">
-            <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center">
-              <div className="bg-white rounded-lg p-6 shadow-xl">
-                <div className="flex items-center space-x-3">
-                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
-                  <span className="text-gray-700 font-medium">Loading...</span>
-                </div>
-              </div>
+  <div className="fixed inset-0 bg-gradient-to-br from-red-900/20 via-red-900/30 to-red-900/20 backdrop-blur-lg z-50 flex items-center justify-center p-4">
+    <div className="relative bg-white rounded-3xl shadow-2xl border-2 border-yellow-200 p-6 sm:p-8 md:p-10 max-w-md w-full mx-4 overflow-hidden">
+      
+      {/* Background Animated Elements */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden rounded-3xl">
+        <div className="absolute -top-10 -left-10 w-20 h-20 bg-yellow-200/20 rounded-full animate-pulse"></div>
+        <div className="absolute -bottom-10 -right-10 w-16 h-16 bg-yellow-400/20 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-1/2 -right-8 w-12 h-12 bg-red-900/10 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
+      </div>
+
+      {/* Main Content */}
+      <div className="relative z-10 text-center space-y-6 sm:space-y-8">
+        
+        {/* Enhanced Spinner */}
+        <div className="relative mx-auto w-20 h-20 sm:w-24 sm:h-24 md:w-28 md:h-28">
+          {/* Outer Circle */}
+          <div className="absolute inset-0 rounded-full border-4 border-yellow-200 animate-spin"></div>
+          {/* Middle Circle */}
+          <div className="absolute inset-3 rounded-full border-4 border-yellow-400 border-t-transparent border-r-transparent animate-spin" style={{ animationDuration: '2s', animationDirection: 'reverse' }}></div>
+          {/* Inner Circle */}
+          <div className="absolute inset-6 rounded-full border-2 border-red-900 border-b-transparent animate-spin" style={{ animationDuration: '3s' }}></div>
+          {/* Center Element */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-red-900 to-red-700 rounded-full animate-pulse shadow-lg"></div>
+          </div>
+        </div>
+
+        {/* Loading Text with Animation */}
+        <div className="space-y-3 sm:space-y-4">
+          <div className="relative">
+            <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold bg-gradient-to-r from-red-900 via-red-800 to-red-900 bg-clip-text text-transparent animate-pulse">
+              Loading
+            </h3>
+            {/* Underline Animation */}
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-0 h-1 bg-gradient-to-r from-yellow-400 to-yellow-200 animate-pulse rounded-full"
+                 style={{ 
+                   animation: 'expandWidth 2s ease-in-out infinite',
+                   width: '60%'
+                 }}>
             </div>
           </div>
+          <p className="text-sm sm:text-base md:text-lg text-gray-600 font-medium animate-pulse">
+            Please wait while we process your request...
+          </p>
+        </div>
+
+        {/* Enhanced Progress Indicators */}
+        <div className="space-y-4">
+          {/* Bouncing Dots */}
+          <div className="flex justify-center space-x-3">
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-yellow-400 to-yellow-300 rounded-full animate-bounce shadow-lg" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-yellow-400 to-yellow-300 rounded-full animate-bounce shadow-lg" style={{ animationDelay: '200ms' }}></div>
+            <div className="w-3 h-3 sm:w-4 sm:h-4 bg-gradient-to-r from-yellow-400 to-yellow-300 rounded-full animate-bounce shadow-lg" style={{ animationDelay: '400ms' }}></div>
+          </div>
+          
+          {/* Progress Bar */}
+          <div className="w-full bg-yellow-200/50 rounded-full h-2 sm:h-3 overflow-hidden">
+            <div className="h-full bg-gradient-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-full animate-pulse relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Optional Message */}
+        <div className="text-xs sm:text-sm text-gray-500 font-medium animate-pulse">
+          🔄 This may take a few moments
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
         
         {/* Performance and Analytics Scripts */}
         {process.env.NODE_ENV === 'production' && (

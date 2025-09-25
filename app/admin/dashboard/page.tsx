@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import AdminHeader from '@/components/layout/AdminHeader';
+import AdminFooter from '@/components/layout/AdminFooter';
 import {
   Shield,
   Users,
@@ -20,7 +21,7 @@ import {
 import { toast } from 'sonner';
 import { User } from '@/types';
 import Link from 'next/link';
-
+import LoadingIndicator from '@/components/LoadingIndicator ';
 export default function AdminDashboard() {
   const [user, setUser] = useState<User | null>(null);
   const [stats, setStats] = useState({
@@ -66,7 +67,11 @@ export default function AdminDashboard() {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div><LoadingIndicator
+        isVisible={isLoading}
+        variant="minimal"
+        showBackdrop={false}
+      /></div>;
   }
 
   return (
@@ -231,6 +236,7 @@ export default function AdminDashboard() {
           </Card>
         </div>
       </main>
+    <AdminFooter/>
     </div>
   );
 }

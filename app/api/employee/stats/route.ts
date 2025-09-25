@@ -27,7 +27,6 @@ export async function GET(request: NextRequest) {
       officerRole: '',
       joiningDate: user.dateOfJoiningService,
       servicePeriod: user.servicePeriod,
-      council: user.council
     };
 
     if (division) {

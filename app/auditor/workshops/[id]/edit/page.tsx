@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import AuditorHeader from '@/components/layout/AuditorHeader';
+import EmployeeFooter from '@/components/layout/EmployeeFooter';
 import EditWorkshopForm from '@/components/workshops/EditWorkshopForm';
 import {
   ArrowLeft,
@@ -15,6 +16,7 @@ import { toast } from 'sonner';
 import { Workshop } from '@/types';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import LoadingIndicator from '@/components/LoadingIndicator ';
 
 export default function EditWorkshopPage() {
   const params = useParams();
@@ -65,7 +67,11 @@ export default function EditWorkshopPage() {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading...</p>
+          <p className="text-muted-foreground"><LoadingIndicator
+        isVisible={isLoading}
+        variant="minimal"
+        showBackdrop={false}
+      /></p>
         </div>
       </div>
     );
@@ -74,17 +80,7 @@ export default function EditWorkshopPage() {
   // Show error if user is not internal auditor or not logged in
   if (!user || user.role !== 'employee') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">
-          <div className="text-destructive text-6xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold mb-2">Access Denied</h1>
-          <p className="text-muted-foreground mb-4">You don't have permission to access this page.</p>
-          <Link href="/login">
-            <Button variant="destructive">
-              Return to Login
-            </Button>
-          </Link>
-        </div>
+      <div className="min-h-screen">
       </div>
     );
   }
@@ -108,6 +104,7 @@ export default function EditWorkshopPage() {
             </Card>
           </div>
         </main>
+        <EmployeeFooter/>
       </div>
     );
   }
@@ -135,6 +132,7 @@ export default function EditWorkshopPage() {
             </CardContent>
           </Card>
         </main>
+        <EmployeeFooter/>
       </div>
     );
   }
@@ -188,6 +186,7 @@ export default function EditWorkshopPage() {
           </CardContent>
         </Card>
       </main>
+      <EmployeeFooter/>
     </div>
   );
 }

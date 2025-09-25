@@ -35,7 +35,6 @@ interface EmployeeFormData {
   servicePeriod: string;
   dateOfJoiningService: Date | null;
   degree: string;
-  council: string;
   password: string;
   profilePicture?: File;
 }
@@ -55,7 +54,6 @@ export default function CreateEmployeeDialog({
     servicePeriod: '',
     dateOfJoiningService: null,
     degree: '',
-    council: '',
     password: ''
   });
   const [isLoading, setIsLoading] = useState(false);
@@ -177,7 +175,6 @@ export default function CreateEmployeeDialog({
         servicePeriod: '',
         dateOfJoiningService: null,
         degree: '',
-        council: '',
         password: ''
       });
       setPreviewImage(null);
@@ -205,7 +202,6 @@ export default function CreateEmployeeDialog({
         servicePeriod: '',
         dateOfJoiningService: null,
         degree: '',
-        council: '',
         password: ''
       });
       setPreviewImage(null);
@@ -340,17 +336,7 @@ export default function CreateEmployeeDialog({
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="council">Council Name *</Label>
-              <Input
-                id="council"
-                placeholder="Enter council name"
-                value={formData.council}
-                onChange={(e) => handleInputChange('council', e.target.value)}
-                required
-                className="bg-white/50"
-              />
-            </div>
+            
 
             <div className="space-y-2">
               <Label htmlFor="servicePeriod">Service Period *</Label>

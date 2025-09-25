@@ -6,6 +6,7 @@ import DivisionCard from '@/components/divisions/DivisionCard';
 import CreateDivisionDialog from '@/components/divisions/CreateDivisionDialog';
 import { User, Division } from '@/types';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 export default function DivisionsPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -82,24 +83,21 @@ export default function DivisionsPage() {
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
           <div className="mb-4 sm:mb-0">
             <h1 className="text-2xl font-bold text-gray-900 flex items-center">
-              <svg className="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-              </svg>
               Division Management
             </h1>
             <p className="text-sm text-gray-600 mt-1">
               Create and manage divisions within your organization
             </p>
           </div>
-          <button
+          <Button
             onClick={() => setIsCreateDialogOpen(true)}
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors flex items-center space-x-2 text-sm"
+            className="px-4 py-2 bg-red-900 text-white font-medium transition-colors flex items-center space-x-2 text-sm"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
             <span>Create Division</span>
-          </button>
+          </Button>
         </div>
 
         {/* Stats Cards */}
@@ -189,15 +187,15 @@ export default function DivisionsPage() {
             <p className="text-gray-600 mb-4 text-sm">
               Get started by creating your first division to organize your team.
             </p>
-            <button
+            < Button
               onClick={() => setIsCreateDialogOpen(true)}
-              className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg font-medium transition-colors inline-flex items-center space-x-2 text-sm"
+            className="px-4 py-2 bg-red-900 text-white font-medium transition-colors flex items-center space-x-2 text-sm"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               </svg>
               <span>Create Your First Division</span>
-            </button>
+            </Button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import AuditorHeader from '@/components/layout/AuditorHeader';
+import EmployeeFooter from '@/components/layout/EmployeeFooter';
 import StudentManagement from '@/components/workshops/StudentManagement';
 import {
   BookOpen,
@@ -115,17 +116,7 @@ export default function WorkshopStudentsPage() {
   // Show error if user is not employee or not logged in
   if (!user || user.role !== 'employee') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-blue-50 to-purple-50">
-        <div className="text-center">
-          <div className="text-red-600 text-6xl mb-4">⚠️</div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h1>
-          <p className="text-gray-600 mb-4">You don't have permission to access this page.</p>
-          <Link href="/login">
-            <Button className="bg-red-600 hover:bg-red-700">
-              Return to Login
-            </Button>
-          </Link>
-        </div>
+      <div className="min-h-screen">
       </div>
     );
   }
@@ -141,6 +132,7 @@ export default function WorkshopStudentsPage() {
             <div className="h-96 bg-gray-300 rounded"></div>
           </div>
         </main>
+        <EmployeeFooter/>
       </div>
     );
   }
@@ -166,6 +158,7 @@ export default function WorkshopStudentsPage() {
             </CardContent>
           </Card>
         </main>
+        <EmployeeFooter/>
       </div>
     );
   }
@@ -284,6 +277,7 @@ export default function WorkshopStudentsPage() {
           </CardContent>
         </Card>
       </main>
+      <EmployeeFooter/>
     </div>
   );
 }

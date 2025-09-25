@@ -80,9 +80,6 @@ const userSchema = new mongoose.Schema({
   },
   council: {
     type: String,
-    required: function() {
-      return this.role === 'employee';
-    },
     trim: true
   },
   director: {

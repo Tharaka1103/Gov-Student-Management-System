@@ -61,15 +61,7 @@ export default function AdminProfilePage() {
 
   if (!authUser || authUser.role !== 'admin' || !user) {
     return (
-      <div className="min-h-screen bg-background">
-        <div className="flex items-center justify-center min-h-screen">
-          <Card>
-            <CardContent className="text-center p-6">
-              <h2 className="text-xl font-bold mb-2">Access Denied</h2>
-              <p className="text-muted-foreground">You don't have permission to access this page.</p>
-            </CardContent>
-          </Card>
-        </div>
+      <div className="min-h-screen">
       </div>
     );
   }

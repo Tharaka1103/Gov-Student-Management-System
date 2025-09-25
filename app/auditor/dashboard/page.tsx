@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import AuditorHeader from '@/components/layout/AuditorHeader';
+import EmployeeFooter from '@/components/layout/EmployeeFooter';
 import DivisionDetailsCard from '@/components/employees/DivisionDetailsCard';
 import {
   ClipboardCheck,
@@ -26,6 +27,7 @@ import {
 import { toast } from 'sonner';
 import { User as UserType } from '@/types';
 import Link from 'next/link';
+import LoadingIndicator from '@/components/LoadingIndicator ';
 
 export default function EmployeeDashboard() {
   const [user, setUser] = useState<UserType | null>(null);
@@ -39,7 +41,6 @@ export default function EmployeeDashboard() {
     officerRole: null,
     joiningDate: null,
     servicePeriod: '',
-    council: ''
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -115,7 +116,11 @@ export default function EmployeeDashboard() {
   }
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div><LoadingIndicator
+        isVisible={isLoading}
+        variant="minimal"
+        showBackdrop={false}
+      /></div>;
   }
 
   return (
@@ -132,9 +137,6 @@ export default function EmployeeDashboard() {
             {user.role === 'employee' ? 'Manage your tasks and view your division information.' : 'Manage your workshops and track student progress efficiently.'}
           </p>
           <div className="mt-4 flex flex-wrap gap-2">
-            <Badge className="bg-blue-100 text-blue-700">
-              {user.role === 'employee' ? `Council: ${user.council}` : `Managing ${user.managingDepartments?.length || 0} Departments`}
-            </Badge>
             {user.role === 'employee' && stats.isOfficer && (
               <Badge className="bg-yellow-100 text-yellow-800">
                 <Crown className="w-3 h-3 mr-1" />
@@ -283,13 +285,6 @@ export default function EmployeeDashboard() {
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between p-3 bg-white/30 rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                    <span className="text-sm font-medium">Council</span>
-                  </div>
-                  <Badge variant="secondary" className="text-xs">{user.council}</Badge>
-                </div>
-                <div className="flex items-center justify-between p-3 bg-white/30 rounded-lg">
-                  <div className="flex items-center space-x-3">
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <span className="text-sm font-medium">Service Period</span>
                   </div>
@@ -404,6 +399,7 @@ export default function EmployeeDashboard() {
           </div>
         )}
       </main>
+      <EmployeeFooter/>
     </div>
   );
 }

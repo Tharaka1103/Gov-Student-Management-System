@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { User, Employee } from '@/types';
+import LoadingIndicator from '@/components/LoadingIndicator ';
 
 export default function EmployeesPage() {
   const [user, setUser] = useState<User | null>(null);
@@ -147,7 +148,11 @@ export default function EmployeesPage() {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div><LoadingIndicator
+        isVisible={isLoading}
+        variant="minimal"
+        showBackdrop={false}
+      /></div>;
   }
 
   const calculateServiceYears = (employee: Employee) => {

@@ -47,9 +47,9 @@ export default function DivisionCard({ division, onUpdate, onDelete }: DivisionC
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-gray-200">
+      <div className="bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden border border-red-900">
         {/* Header */}
-        <div className="bg-blue-500 text-white p-3">
+        <div className="bg-yellow-200 text-black p-3">
           <div className="flex items-center justify-between">
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-semibold truncate">{division.name}</h3>
@@ -148,13 +148,13 @@ export default function DivisionCard({ division, onUpdate, onDelete }: DivisionC
           <div className="flex space-x-1.5 pt-2 border-t border-gray-100">
             <Link 
               href={`/director/divisions/${division._id}`}
-              className="flex-1 px-2 py-1.5 bg-blue-50 text-blue-600 rounded text-center text-xs font-medium hover:bg-blue-100 transition-colors"
+              className="flex-1 px-2 py-1.5 bg-yellow-400 text-black rounded text-center text-xs font-medium hover:bg-blue-100 transition-colors"
             >
               View
             </Link>
             <Link 
               href={`/director/divisions/${division._id}/edit`}
-              className="flex-1 px-2 py-1.5 bg-gray-50 text-gray-600 rounded text-center text-xs font-medium hover:bg-gray-100 transition-colors"
+              className="flex-1 px-2 py-1.5 bg-red-900 text-white rounded text-center text-xs font-medium hover:bg-gray-100 transition-colors"
             >
               Edit
             </Link>

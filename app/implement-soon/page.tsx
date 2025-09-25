@@ -16,11 +16,13 @@ import {
 } from 'lucide-react';
 import { User } from '@/types';
 import Link from 'next/link';
+import LoadingIndicator, { useLoading } from '@/components/LoadingIndicator ';
 
 export default function ComingSoonPage() {
   const [user, setUser] = useState<User | null>(null);
   const featureName = 'This feature';
   const backUrl = '/admin/dashboard';
+  const { isLoading, startLoading, stopLoading } = useLoading();
 
   useEffect(() => {
     fetchUserData();
@@ -39,7 +41,11 @@ export default function ComingSoonPage() {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div><LoadingIndicator
+        isVisible={isLoading}
+        variant="minimal"
+        showBackdrop={false}
+      /></div>;
   }
 
   return (

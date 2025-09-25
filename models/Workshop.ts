@@ -8,7 +8,10 @@ const studentSchema = new mongoose.Schema({
   },
   email: {
     type: String,
-    required: true,
+    trim: true
+  },
+  council:{
+    type: String,
     trim: true
   },
   nic: {
@@ -23,7 +26,6 @@ const studentSchema = new mongoose.Schema({
   },
   address: {
     type: String,
-    required: true,
     trim: true
   },
   enrollmentNumber: {

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import AuditorHeader from '@/components/layout/AuditorHeader';
+import EmployeeFooter from '@/components/layout/EmployeeFooter';
 import {
   BookOpen,
   Calendar,
@@ -24,6 +25,7 @@ import {
 import { toast } from 'sonner';
 import { User as UserType, Workshop, Student } from '@/types';
 import Link from 'next/link';
+import LoadingIndicator from '@/components/LoadingIndicator ';
 
 export default function WorkshopDetailPage() {
   const params = useParams();
@@ -106,7 +108,11 @@ export default function WorkshopDetailPage() {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div><LoadingIndicator
+        isVisible={isLoading}
+        variant="minimal"
+        showBackdrop={false}
+      /></div>;
   }
 
   if (isLoading) {
@@ -120,6 +126,7 @@ export default function WorkshopDetailPage() {
             <div className="h-96 bg-gray-300 rounded"></div>
           </div>
         </main>
+        <EmployeeFooter/>
       </div>
     );
   }
@@ -145,6 +152,7 @@ export default function WorkshopDetailPage() {
             </CardContent>
           </Card>
         </main>
+        <EmployeeFooter/>
       </div>
     );
   }
@@ -390,6 +398,7 @@ export default function WorkshopDetailPage() {
           </CardContent>
         </Card>
       </main>
+      <EmployeeFooter/>
     </div>
   );
 }

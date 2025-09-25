@@ -68,11 +68,10 @@ export async function PUT(
     const servicePeriod = formData.get('servicePeriod') as string;
     const dateOfJoiningService = formData.get('dateOfJoiningService') as string;
     const degree = formData.get('degree') as string;
-    const council = formData.get('council') as string;
     const isActive = formData.get('isActive') === 'true';
     const profilePicture = formData.get('profilePicture') as File;
 
-    if (!name || !nic || !mobile || !address || !servicePeriod || !dateOfJoiningService || !council) {
+    if (!name || !nic || !mobile || !address || !servicePeriod || !dateOfJoiningService) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
@@ -125,7 +124,6 @@ export async function PUT(
       servicePeriod,
       dateOfJoiningService: new Date(dateOfJoiningService),
       degree: degree?.trim() || undefined,
-      council: council.trim(),
       profilePicture: profilePictureUrl,
       isActive
     };

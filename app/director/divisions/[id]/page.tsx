@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import DirectorHeader from '@/components/layout/DirectorHeader';
 import { User, Division, Employee } from '@/types';
 import { toast } from 'sonner';
-
+import LoadingIndicator from '@/components/LoadingIndicator ';
 interface DivisionDetailPageProps {
   params: Promise<{ id: string }>;
 }
@@ -115,9 +115,11 @@ export default function DivisionDetailPage({ params }: DivisionDetailPageProps) 
 
   if (!user || isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
-      </div>
+      <LoadingIndicator
+        isVisible={isLoading}
+        variant="minimal"
+        showBackdrop={false}
+      />
     );
   }
 
@@ -131,7 +133,7 @@ export default function DivisionDetailPage({ params }: DivisionDetailPageProps) 
             <p className="text-gray-600 mb-4 text-sm">The division you're looking for doesn't exist.</p>
             <button
               onClick={() => router.push('/director/divisions')}
-              className="px-4 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors"
+              className="px-4 py-2 bg-red-900 text-white rounded text-sm hover:bg-red-800 transition-colors"
             >
               Back to Divisions
             </button>
@@ -191,7 +193,7 @@ export default function DivisionDetailPage({ params }: DivisionDetailPageProps) 
           </div>
           <button
             onClick={() => setIsAddEmployeeDialogOpen(true)}
-            className="px-4 py-2 bg-blue-500 text-white rounded text-sm hover:bg-blue-600 transition-colors flex items-center space-x-2"
+            className="px-4 py-2 bg-red-900 text-white rounded text-sm hover:bg-red-800 transition-colors flex items-center space-x-2"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -281,7 +283,7 @@ export default function DivisionDetailPage({ params }: DivisionDetailPageProps) 
               <div className="space-y-2">
                 <button
                   onClick={() => router.push(`/director/divisions/${division._id}/edit`)}
-                  className="w-full px-3 py-2 bg-blue-50 text-blue-600 rounded text-sm hover:bg-blue-100 transition-colors flex items-center justify-center space-x-2"
+                  className="w-full px-3 py-2 bg-red-200 text-black rounded text-sm hover:bg-blue-100 transition-colors flex items-center justify-center space-x-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -290,7 +292,7 @@ export default function DivisionDetailPage({ params }: DivisionDetailPageProps) 
                 </button>
                 <button
                   onClick={() => setIsAddEmployeeDialogOpen(true)}
-                  className="w-full px-3 py-2 bg-green-50 text-green-600 rounded text-sm hover:bg-green-100 transition-colors flex items-center justify-center space-x-2"
+                  className="w-full px-3 py-2 bg-green-200 text-black rounded text-sm hover:bg-green-100 transition-colors flex items-center justify-center space-x-2"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
@@ -385,7 +387,7 @@ export default function DivisionDetailPage({ params }: DivisionDetailPageProps) 
         {isAddEmployeeDialogOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-lg max-w-md w-full max-h-[75vh] overflow-hidden">
-              <div className="bg-blue-500 text-white p-4">
+              <div className="bg-red-900 text-white p-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold">Add Employee to Division</h3>
                   <button 
